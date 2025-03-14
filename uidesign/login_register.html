@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智评 - 登录/注册</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f0f5ff',
+                            100: '#e0eaff',
+                            200: '#c7d7fe',
+                            300: '#a4bcfc',
+                            400: '#819af9',
+                            500: '#6474f4',
+                            600: '#5155e5',
+                            700: '#4542c7',
+                            800: '#3939a0',
+                            900: '#33357d',
+                        },
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .glass {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .device-mockup {
+            width: 360px;
+            height: 720px;
+        }
+        
+        .auth-container {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #6474f4 0%, #4542c7 100%);
+        }
+        
+        .auth-form {
+            max-width: 400px;
+            width: 100%;
+        }
+        
+        .input-group {
+            position: relative;
+        }
+        
+        .input-group input {
+            padding-left: 40px;
+        }
+        
+        .input-group .icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6b7280;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container flex items-center justify-center p-4">
+        <div class="auth-form">
+            <!-- 标题和Logo -->
+            <div class="text-center mb-8">
+                <div class="w-20 h-20 bg-white rounded-2xl shadow-lg flex items-center justify-center mx-auto mb-4">
+                    <span class="text-3xl font-bold text-primary-600">智评</span>
+                </div>
+                <h1 class="text-2xl font-bold text-white">智能批改助手</h1>
+                <p class="text-white text-opacity-80 mt-2">高效、精准的智能批改解决方案</p>
+            </div>
+            
+            <!-- 登录/注册切换卡片 -->
+            <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+                <!-- 切换标签 -->
+                <div class="flex border-b border-gray-200">
+                    <button id="login-tab" class="flex-1 py-4 text-center font-medium text-primary-600 border-b-2 border-primary-500">登录</button>
+                    <button id="register-tab" class="flex-1 py-4 text-center font-medium text-gray-500">注册</button>
+                </div>
+                
+                <!-- 登录表单 -->
+                <div id="login-form" class="p-6">
+                    <div class="mb-6">
+                        <div class="flex justify-between items-center mb-2">
+                            <h2 class="text-lg font-medium text-gray-800">欢迎回来</h2>
+                            <div class="flex gap-2">
+                                <button id="pwd-login-btn" class="text-xs font-medium text-primary-600 border-b-2 border-primary-500 pb-0.5">密码登录</button>
+                                <button id="sms-login-btn" class="text-xs font-medium text-gray-500">验证码登录</button>
+                            </div>
+                        </div>
+                        <p class="text-sm text-gray-500">请登录您的账号继续使用</p>
+                    </div>
+                    
+                    <!-- 密码登录表单 -->
+                    <div id="pwd-login-container">
+                        <div class="space-y-4">
+                            <div class="input-group">
+                                <input type="text" placeholder="用户名/手机号" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+                                <div class="icon">
+                                    <img src="https://unpkg.com/lucide-static@latest/icons/user.svg" class="w-5 h-5 text-gray-500" />
+                                </div>
+                            </div>
+                            
+                            <div class="input-group">
+                                <input type="password" placeholder="密码" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+                                <div class="icon">
+                                    <img src="https://unpkg.com/lucide-static@latest/icons/lock.svg" class="w-5 h-5 text-gray-500" />
+                                </div>
+                            </div>
+                            
+                            <div class="flex justify-between items-center">
+                                <label class="flex items-center gap-2 text-sm text-gray-600">
+                                    <input type="checkbox" class="w-4 h-4 rounded text-primary-600 focus:ring-primary-500">
+                                    <span>记住我</span>
+                                </label>
+                                <a href="#" class="text-sm text-primary-600 hover:underline">忘记密码?</a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 验证码登录表单 -->
+                    <div id="sms-login-container" class="hidden space-y-4">
+                        <div class="input-group">
+                            <input type="text" placeholder="手机号" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+                            <div class="icon">
+                                <img src="https://unpkg.com/lucide-static@latest/icons/smartphone.svg" class="w-5 h-5 text-gray-500" />
+                            </div>
+                        </div>
+                        
+                        <div class="flex gap-2">
+                            <div class="input-group flex-1">
+                                <input type="text" placeholder="验证码" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+                                <div class="icon">
+                                    <img src="https://unpkg.com/lucide-static@latest/icons/message-square.svg" class="w-5 h-5 text-gray-500" />
+                                </div>
+                            </div>
+                            <button class="px-4 py-3 bg-primary-100 text-primary-600 text-sm font-medium rounded-lg whitespace-nowrap">
+                                获取验证码
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <button class="w-full mt-6 py-3 bg-primary-600 text-white font-medium rounded-lg hover:bg-primary-700 transition duration-200">
+                        登录
+                    </button>
+                    
+                    <!-- 第三方登录 -->
+                    <div class="mt-6">
+                        <div class="flex items-center justify-center gap-4 mb-4">
+                            <div class="h-px bg-gray-300 flex-1"></div>
+                            <span class="text-sm text-gray-500">其他登录方式</span>
+                            <div class="h-px bg-gray-300 flex-1"></div>
+                        </div>
+                        
+                        <div class="flex justify-center gap-6">
+                            <button class="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center">
+                                <img src="https://unpkg.com/lucide-static@latest/icons/wechat.svg" class="w-5 h-5 text-green-600" />
+                            </button>
+                            <button class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center">
+                                <img src="https://unpkg.com/lucide-static@latest/icons/message-circle.svg" class="w-5 h-5 text-blue-600" />
+                            </button>
+                            <button class="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center">
+                                <img src="https://unpkg.com/lucide-static@latest/icons/mail.svg" class="w-5 h-5 text-red-600" />
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 注册表单 -->
+                <div id="register-form" class="p-6 hidden">
+                    <div class="mb-6">
+                        <h2 class="text-lg font-medium text-gray-800 mb-2">创建新账号</h2>
+                        <p class="text-sm text-gray-500">请填写以下信息完成注册</p>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div class="input-group">
+                            <input type="text" placeholder="姓名" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+                            <div class="icon">
+                                <img src="https://unpkg.com/lucide-static@latest/icons/user.svg" class="w-5 h-5 text-gray-500" />
+                            </div>
+                        </div>
+                        
+                        <div class="input-group">
+                            <input type="text" placeholder="手机号" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+                            <div class="icon">
+                                <img src="https://unpkg.com/lucide-static@latest/icons/smartphone.svg" class="w-5 h-5 text-gray-500" />
+                            </div>
+                        </div>
+                        
+                        <div class="flex gap-2">
+                            <div class="input-group flex-1">
+                                <input type="text" placeholder="验证码" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+                                <div class="icon">
+                                    <img src="https://unpkg.com/lucide-static@latest/icons/message-square.svg" class="w-5 h-5 text-gray-500" />
+                                </div>
+                            </div>
+                            <button class="px-4 py-3 bg-primary-100 text-primary-600 text-sm font-medium rounded-lg whitespace-nowrap">
+                                获取验证码
+                            </button>
+                        </div>
+                        
+                        <div class="input-group">
+                            <input type="password" placeholder="设置密码" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+                            <div class="icon">
+                                <img src="https://unpkg.com/lucide-static@latest/icons/lock.svg" class="w-5 h-5 text-gray-500" />
+                            </div>
+                        </div>
+                        
+                        <div class="input-group">
+                            <input type="password" placeholder="确认密码" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+                            <div class="icon">
+                                <img src="https://unpkg.com/lucide-static@latest/icons/check-circle.svg" class="w-5 h-5 text-gray-500" />
+                            </div>
+                        </div>
+                        
+                        <div class="input-group">
+                            <input type="text" placeholder="学号" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+                            <div class="icon">
+                                <img src="https://unpkg.com/lucide-static@latest/icons/id-card.svg" class="w-5 h-5 text-gray-500" />
+                            </div>
+                        </div>
+                        
+                        <div class="input-group">
+                            <input type="text" placeholder="学校" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+                            <div class="icon">
+                                <img src="https://unpkg.com/lucide-static@latest/icons/building.svg" class="w-5 h-5 text-gray-500" />
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start gap-2">
+                            <input type="checkbox" class="mt-1 w-4 h-4 rounded text-primary-600 focus:ring-primary-500">
+                            <p class="text-sm text-gray-600">
+                                我已阅读并同意 <a href="#" class="text-primary-600 hover:underline">用户协议</a> 和 <a href="#" class="text-primary-600 hover:underline">隐私政策</a>
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <button class="w-full mt-6 py-3 bg-primary-600 text-white font-medium rounded-lg hover:bg-primary-700 transition duration-200">
+                        注册
+                    </button>
+                </div>
+            </div>
+            
+            <p class="text-center text-white text-opacity-80 mt-6 text-sm">
+                © 2023 智评教育科技. 保留所有权利.
+            </p>
+        </div>
+    </div>
+    
+    <script>
+        // 登录/注册切换
+        const loginTab = document.getElementById('login-tab');
+        const registerTab = document.getElementById('register-tab');
+        const loginForm = document.getElementById('login-form');
+        const registerForm = document.getElementById('register-form');
+        
+        loginTab.addEventListener('click', () => {
+            loginTab.classList.add('text-primary-600', 'border-b-2', 'border-primary-500');
+            loginTab.classList.remove('text-gray-500');
+            registerTab.classList.add('text-gray-500');
+            registerTab.classList.remove('text-primary-600', 'border-b-2', 'border-primary-500');
+            
+            loginForm.classList.remove('hidden');
+            registerForm.classList.add('hidden');
+        });
+        
+        registerTab.addEventListener('click', () => {
+            registerTab.classList.add('text-primary-600', 'border-b-2', 'border-primary-500');
+            registerTab.classList.remove('text-gray-500');
+            loginTab.classList.add('text-gray-500');
+            loginTab.classList.remove('text-primary-600', 'border-b-2', 'border-primary-500');
+            
+            registerForm.classList.remove('hidden');
+            loginForm.classList.add('hidden');
+        });
+        
+        // 密码登录/验证码登录切换
+        const pwdLoginBtn = document.getElementById('pwd-login-btn');
+        const smsLoginBtn = document.getElementById('sms-login-btn');
+        const pwdLoginContainer = document.getElementById('pwd-login-container');
+        const smsLoginContainer = document.getElementById('sms-login-container');
+        
+        pwdLoginBtn.addEventListener('click', () => {
+            pwdLoginBtn.classList.add('text-primary-600', 'border-b-2', 'border-primary-500', 'pb-0.5');
+            pwdLoginBtn.classList.remove('text-gray-500');
+            smsLoginBtn.classList.add('text-gray-500');
+            smsLoginBtn.classList.remove('text-primary-600', 'border-b-2', 'border-primary-500', 'pb-0.5');
+            
+            pwdLoginContainer.classList.remove('hidden');
+            smsLoginContainer.classList.add('hidden');
+        });
+        
+        smsLoginBtn.addEventListener('click', () => {
+            smsLoginBtn.classList.add('text-primary-600', 'border-b-2', 'border-primary-500', 'pb-0.5');
+            smsLoginBtn.classList.remove('text-gray-500');
+            pwdLoginBtn.classList.add('text-gray-500');
+            pwdLoginBtn.classList.remove('text-primary-600', 'border-b-2', 'border-primary-500', 'pb-0.5');
+            
+            smsLoginContainer.classList.remove('hidden');
+            pwdLoginContainer.classList.add('hidden');
+        });
+        
+        // 验证码倒计时功能
+        const smsButtons = document.querySelectorAll('.auth-form button:contains("获取验证码")');
+        
+        smsButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                let countdown = 60;
+                const originalText = this.textContent;
+                this.disabled = true;
+                this.classList.add('bg-gray-100', 'text-gray-500');
+                this.classList.remove('bg-primary-100', 'text-primary-600');
+                
+                const timer = setInterval(() => {
+                    countdown--;
+                    this.textContent = `${countdown}秒后重新获取`;
+                    
+                    if (countdown <= 0) {
+                        clearInterval(timer);
+                        this.textContent = originalText;
+                        this.disabled = false;
+                        this.classList.remove('bg-gray-100', 'text-gray-500');
+                        this.classList.add('bg-primary-100', 'text-primary-600');
+                    }
+                }, 1000);
+                
+                // 这里可以添加发送验证码的AJAX请求
+                console.log('发送验证码');
+            });
+        });
+        
+        // 表单验证
+        const registerButton = document.querySelector('#register-form button');
+        const loginButton = document.querySelector('#login-form button');
+        
+        registerButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            const nameInput = document.querySelector('#register-form input[placeholder="姓名"]');
+            const phoneInput = document.querySelector('#register-form input[placeholder="手机号"]');
+            const codeInput = document.querySelector('#register-form input[placeholder="验证码"]');
+            const passwordInput = document.querySelector('#register-form input[placeholder="设置密码"]');
+            const confirmInput = document.querySelector('#register-form input[placeholder="确认密码"]');
+            const studentIdInput = document.querySelector('#register-form input[placeholder="学号"]');
+            const schoolInput = document.querySelector('#register-form input[placeholder="学校"]');
+            const agreeCheckbox = document.querySelector('#register-form input[type="checkbox"]');
+            
+            // 简单验证示例
+            if (!nameInput.value) {
+                alert('请输入姓名');
+                return;
+            }
+            
+            if (!phoneInput.value || !/^1[3-9]\d{9}$/.test(phoneInput.value)) {
+                alert('请输入正确的手机号');
+                return;
+            }
+            
+            if (!codeInput.value) {
+                alert('请输入验证码');
+                return;
+            }
+            
+            if (!passwordInput.value || passwordInput.value.length < 6) {
+                alert('密码长度至少为6位');
+                return;
+            }
+            
+            if (passwordInput.value !== confirmInput.value) {
+                alert('两次输入的密码不一致');
+                return;
+            }
+            
+            if (!studentIdInput.value) {
+                alert('请输入学号');
+                return;
+            }
+            
+            if (!schoolInput.value) {
+                alert('请输入学校');
+                return;
+            }
+            
+            if (!agreeCheckbox.checked) {
+                alert('请阅读并同意用户协议和隐私政策');
+                return;
+            }
+            
+            // 提交注册表单
+            alert('注册成功！');
+            // 这里可以添加注册的AJAX请求
+            console.log('提交注册表单');
+            
+            // 注册成功后跳转到登录页
+            loginTab.click();
+        });
+        
+        loginButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // 判断当前是哪种登录方式
+            if (!pwdLoginContainer.classList.contains('hidden')) {
+                // 密码登录
+                const usernameInput = document.querySelector('#pwd-login-container input[placeholder="用户名/手机号"]');
+                const passwordInput = document.querySelector('#pwd-login-container input[placeholder="密码"]');
+                
+                if (!usernameInput.value) {
+                    alert('请输入用户名或手机号');
+                    return;
+                }
+                
+                if (!passwordInput.value) {
+                    alert('请输入密码');
+                    return;
+                }
+                
+                // 提交登录表单
+                // 这里可以添加登录的AJAX请求
+                console.log('密码登录');
+            } else {
+                // 验证码登录
+                const phoneInput = document.querySelector('#sms-login-container input[placeholder="手机号"]');
+                const codeInput = document.querySelector('#sms-login-container input[placeholder="验证码"]');
+                
+                if (!phoneInput.value || !/^1[3-9]\d{9}$/.test(phoneInput.value)) {
+                    alert('请输入正确的手机号');
+                    return;
+                }
+                
+                if (!codeInput.value) {
+                    alert('请输入验证码');
+                    return;
+                }
+                
+                // 提交登录表单
+                // 这里可以添加登录的AJAX请求
+                console.log('验证码登录');
+            }
+            
+            // 登录成功后跳转到主页
+            alert('登录成功！');
+            window.location.href = 'app_main.html';
+        });
+    </script>
+</body>
+</html>
