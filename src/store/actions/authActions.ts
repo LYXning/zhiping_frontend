@@ -68,37 +68,88 @@ const errorCodeMap: Record<string, string> = {
 
 // 处理API错误的通用函数
 const handleApiError = (error: any): string => {
-  if (axios.isAxiosError(error)) {
-    if (error.code === 'ECONNABORTED') {
-      return '网络请求超时，请检查网络连接后重试';
-    } else if (error.response) {
-      // 服务器返回了错误响应
-      const errorCode = error.response.data?.code;
-      const errorMessage = error.response.data?.message;
-
-      // 如果有错误码且在映射表中，返回对应的错误信息
-      if (errorCode && errorCodeMap[errorCode]) {
-        return errorCodeMap[errorCode];
-      }
-
-      // 如果服务器返回了错误信息，使用服务器的错误信息
-      if (errorMessage) {
-        return errorMessage;
-      }
-
-      // 否则返回通用错误信息
-      return `服务器错误: ${error.response.status}`;
-    } else if (error.request) {
-      // 请求已发出，但没有收到响应
-      return '无法连接到服务器，请检查网络连接或服务器状态';
-    } else {
-      // 请求配置有问题
-      return '请求配置错误: ' + error.message;
+  try {
+    console.log('处理错误类型:', typeof error);
+    
+    // 防止JSON.stringify导致的循环引用错误
+    let errorLog;
+    try {
+      errorLog = JSON.stringify(error);
+      console.log('处理错误:', errorLog);
+    } catch (e) {
+      console.log('错误无法序列化:', e);
+      errorLog = '错误对象无法序列化';
     }
-  }
+    
+    // 处理响应数据不符合预期的情况
+    if (error && typeof error === 'object' && 'data' in error) {
+      const responseData = error.data;
+      
+      // 检查是否有错误码和错误信息
+      if (responseData && responseData.code && errorCodeMap[responseData.code]) {
+        return errorCodeMap[responseData.code];
+      }
+      
+      if (responseData && responseData.message) {
+        return responseData.message;
+      }
+      
+      // 如果有其他有用信息，尝试提取
+      try {
+        return `服务器响应异常: ${JSON.stringify(responseData)}`;
+      } catch (e) {
+        return '服务器响应异常且无法解析';
+      }
+    }
+    
+    // 如果错误是普通字符串
+    if (typeof error === 'string') {
+      return error;
+    }
+    
+    if (axios.isAxiosError(error)) {
+      if (error.code === 'ECONNABORTED') {
+        return '网络请求超时，请检查网络连接后重试';
+      } else if (error.response) {
+        // 服务器返回了错误响应
+        const errorCode = error.response.data?.code;
+        const errorMessage = error.response.data?.message;
 
-  // 非Axios错误
-  return '发生未知错误，请稍后重试';
+        console.log('错误信息:', errorMessage, '错误码:', errorCode);
+
+        // 如果有错误码且在映射表中，返回对应的错误信息
+        if (errorCode && errorCodeMap[errorCode]) {
+          return errorCodeMap[errorCode];
+        }
+
+        // 如果服务器返回了错误信息，使用服务器的错误信息
+        if (errorMessage) {
+          return errorMessage;
+        }
+
+        // 否则返回通用错误信息
+        return `服务器错误: ${error.response.status}`;
+      } else if (error.request) {
+        // 请求已发出，但没有收到响应
+        return '无法连接到服务器，请检查网络连接或服务器状态';
+      } else {
+        // 请求配置有问题
+        return '请求配置错误: ' + error.message;
+      }
+    }
+
+    // 处理Error实例
+    if (error instanceof Error) {
+      return error.message;
+    }
+
+    // 非Axios错误
+    return '发生未知错误，请稍后重试';
+  } catch (unexpectedError) {
+    // 捕获处理错误过程中可能发生的任何异常
+    console.error('处理错误时发生异常:', unexpectedError);
+    return '处理错误时发生异常，请稍后重试';
+  }
 };
 
 // 保存token的辅助函数
@@ -167,10 +218,11 @@ export const login = (username: string, password: string) => {
 
       console.log('登录响应:', response.data);
 
-      // 修正：正确解析嵌套的响应数据结构
+      // 修正：检查响应数据结构，如果不符合预期，提取有用信息
       if (!response.data || !response.data.data || !response.data.data.token) {
         console.error('响应数据结构不符合预期:', response.data);
-        throw new Error('服务器响应缺少token信息');
+        // 将整个响应对象传递给错误处理函数，而不是直接抛出固定错误
+        throw response;
       }
 
       // 登录成功，保存token
@@ -195,8 +247,9 @@ export const login = (username: string, password: string) => {
     } catch (error) {
       console.error('登录错误详情:', error);
 
-      // 使用通用错误处理函数
+      // 使用通用错误处理函数获取格式化的错误信息
       const errorMessage = handleApiError(error);
+      console.log('格式化后的错误信息:', errorMessage);
 
       // 显示错误提示
       Toast.show({
@@ -215,7 +268,7 @@ export const login = (username: string, password: string) => {
   };
 };
 
-// 验证码登录 action
+// 验证码登录 action 中的错误处理
 export const loginWithSms = (phone: string, smsCode: string) => {
   return async (dispatch: Dispatch<AuthAction>) => {
     dispatch({type: AuthActionTypes.LOGIN_REQUEST});
@@ -234,7 +287,7 @@ export const loginWithSms = (phone: string, smsCode: string) => {
       // 修正：正确解析嵌套的响应数据结构
       if (!response.data || !response.data.data || !response.data.data.token) {
         console.error('响应数据结构不符合预期:', response.data);
-        throw new Error('服务器响应缺少token信息');
+        throw response;
       }
 
       // 登录成功，保存token
@@ -280,13 +333,21 @@ export const loginWithSms = (phone: string, smsCode: string) => {
 };
 
 // 发送验证码 action
-export const sendSmsCode = (phone: string) => {
+export const sendSmsCode = (phone: string, type: string) => {
   return async (dispatch: Dispatch<AuthAction>) => {
     dispatch({type: AuthActionTypes.SMS_CODE_REQUEST});
 
     try {
-      // 调用发送验证码API
-      await api.post('/send-verification-code?phone=' + phone, {phone});
+      // 调用发送验证码API，传入手机号和类型
+      const response =  await api.post('/send-verification-code?phone=' + phone + '&type=' + type);
+      console.log('登录响应:', response.data);
+
+      // 修正：正确解析嵌套的响应数据结构
+      if (!response.data || !response.data.data || !response.data.data.token) {
+        console.error('响应数据结构不符合预期:', response.data);
+        throw response;
+      }
+
 
       // 显示成功提示
       Toast.show({
@@ -321,7 +382,7 @@ export const sendSmsCode = (phone: string) => {
   };
 };
 
-// 注册 action
+// 注册 action 中的错误处理
 export const register = (userData: registerData) => {
   return async (dispatch: Dispatch<AuthAction>) => {
     dispatch({type: AuthActionTypes.REGISTER_REQUEST});

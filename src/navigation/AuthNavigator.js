@@ -7,7 +7,8 @@ import React from 'react';
 import {createStackNavigator} from '@react-navigation/stack';
 import LoginScreen from '../screens/auth/LoginScreen';
 import RegisterScreen from '../screens/auth/RegisterScreen';
-import MainScreen from '../screens/MainScreen';
+import HomeScreen from '../screens/teacher/HomeScreen';
+import MainNavigator from './MainNavigator';
 
 // 创建认证相关的Stack导航器
 const Stack = createStackNavigator();
@@ -27,7 +28,7 @@ const AuthNavigator = () => {
       }}>
       <Stack.Screen name="Login" component={LoginScreen} />
       <Stack.Screen name="Register" component={RegisterScreen} />
-      <Stack.Screen name="Main" component={MainScreen} />
+      <Stack.Screen name="Main" component={MainNavigator} />
     </Stack.Navigator>
   );
 };

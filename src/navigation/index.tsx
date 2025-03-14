@@ -4,9 +4,9 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { useSelector, useDispatch } from 'react-redux';
 import LoginScreen from '../screens/auth/LoginScreen';
 import RegisterScreen from '../screens/auth/RegisterScreen';
-import MainScreen from '../screens/MainScreen';
 import { RootState, AppDispatch } from '../store';
 import { validateToken } from '../store/actions/authActions';
+import MainNavigator from './MainNavigator';
 
 // 定义导航参数类型
 export type RootStackParamList = {
@@ -35,21 +35,21 @@ const AppNavigator = () => {
       }}
     >
       <Stack.Navigator
-        initialRouteName="Login"
+        initialRouteName={isAuthenticated ? "Main" : "Login"}
         screenOptions={{
           headerShown: false,
         }}
       >
-        {!isAuthenticated ? (
-          // 未认证状态显示登录和注册页面
-          <>
-            <Stack.Screen name="Login" component={LoginScreen} />
-            <Stack.Screen name="Register" component={RegisterScreen} />
-          </>
-        ) : (
-          // 已认证状态显示主页面
-          <Stack.Screen name="Main" component={MainScreen} />
-        )}
+        <Stack.Screen name="Login" component={LoginScreen} />
+        <Stack.Screen name="Register" component={RegisterScreen} />
+        <Stack.Screen 
+          name="Main" 
+          component={MainNavigator} 
+          options={{
+            // 如果用户未认证，则无法通过直接导航访问此屏幕
+            gestureEnabled: isAuthenticated
+          }}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );

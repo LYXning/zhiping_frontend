@@ -57,6 +57,7 @@ const RegisterScreen = () => {
     registerSuccess,
     registerError,
     smsCodeSending,
+    smsCodeSent,
     smsError,
   } = useSelector((state: RootState) => state.auth);
 
@@ -93,10 +94,11 @@ const RegisterScreen = () => {
     }
 
     // 发送验证码
-    dispatch(sendSmsCode(phone));
+    dispatch(sendSmsCode(phone, 'register'));
 
     // 开始倒计时
-    setCountdown(60);
+    if (smsCodeSent)
+      {setCountdown(60);}
   };
 
   /**

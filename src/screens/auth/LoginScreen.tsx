@@ -51,9 +51,9 @@ const LoginScreen = () => {
   const {
     loading,
     error,
-    // isAuthenticated,
+    isAuthenticated,
     smsCodeSending,
-    // smsCodeSent,
+    smsCodeSent,
     smsError,
   } = useSelector((state: RootState) => state.auth);
   // 本地状态
@@ -64,6 +64,14 @@ const LoginScreen = () => {
   const [smsCode, setSmsCode] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
   const [countdown, setCountdown] = useState(0);
+
+  // 监听认证状态变化，当用户登录成功后自动导航到Main页面
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigation.navigate('Main');
+    }
+  }, [isAuthenticated, navigation]);
+  
   /**
    * 处理登录类型切换
    * @param {string} type - 登录类型 'password' 或 'sms'
@@ -160,9 +168,11 @@ const LoginScreen = () => {
       return;
     }
     // 发送验证码
-    dispatch(sendSmsCode(phone));
+    dispatch(sendSmsCode(phone, 'login'));
     // 开始倒计时
-    setCountdown(60);
+    if (smsCodeSent) {
+      setCountdown(60);
+    }
   };
   /**
    * 处理注册按钮点击
