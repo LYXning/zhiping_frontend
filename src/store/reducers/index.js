@@ -5,14 +5,14 @@
 
 import { combineReducers } from 'redux';
 import authReducer from './authReducer';
-
+import taskReducer from './taskReducer';
 /**
  * 根reducer
  * 合并所有子reducer
  */
 const rootReducer = combineReducers({
   auth: authReducer,
-  // 这里可以添加其他reducer
+  task: taskReducer,
 });
 
 export default rootReducer;

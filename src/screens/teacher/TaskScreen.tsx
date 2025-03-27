@@ -13,6 +13,7 @@ import {
   TouchableOpacity,
   Image,
 } from 'react-native';
+import { STATUS_BAR_HEIGHT } from '../../utils/devicesUtils';
 import LinearGradient from 'react-native-linear-gradient';
 
 // 导入图标资源
@@ -24,6 +25,7 @@ import {
   clockIcon,
   homeIcon
 } from '../../assets/icons';
+import { useNavigation } from '@react-navigation/native';
 
 // 图标组件
 const Icon = ({name, size = 24, color = '#000'}) => {
@@ -102,6 +104,12 @@ const TaskScreen = () => {
     </TouchableOpacity>
   );
 
+  const navigation = useNavigation();
+  // 处理添加按钮点击
+  const handleAddPress = () => {
+    navigation.navigate('CreateTask');
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <LinearGradient
@@ -115,7 +123,7 @@ const TaskScreen = () => {
             <TouchableOpacity style={styles.iconButton}>
               <Icon name="filter" size={20} color="#4b5563" />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.iconButton}>
+            <TouchableOpacity style={styles.iconButton} onPress={handleAddPress}>
               <Icon name="plus" size={20} color="#4b5563" />
             </TouchableOpacity>
           </View>
@@ -199,8 +207,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 16,
-    paddingTop: 16,
     paddingBottom: 12,
+    paddingTop: (STATUS_BAR_HEIGHT + 30) / 2,
+    height: STATUS_BAR_HEIGHT + 30,
   },
   headerTitle: {
     fontSize: 18,

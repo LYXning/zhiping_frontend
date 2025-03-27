@@ -62,11 +62,35 @@ const authReducer = (state = initialState, action: AuthAction): AuthState => {
         smsCodeSending: false,
         smsError: action.payload || '发送验证码失败',
       };
+    case AuthActionTypes.GET_PROFILE_SUCCESS:
+      return {
+        ...state,
+        user: action.payload.user,
+      };
+    case AuthActionTypes.UPDATE_PROFILE_SUCCESS:
+      return {
+        ...state,
+        user: action.payload.user,
+      };
     case AuthActionTypes.CLEAR_ERRORS:
       return {
         ...state,
         error: null,
         smsError: null,
+      };
+    case AuthActionTypes.LOGOUT:
+      return {
+        ...state,
+        isAuthenticated: false,
+        user: {
+          username: '',
+          password: '',
+          phone: '',
+          name: '',
+          school: '',
+          studentID: '',
+          role: 'STUDENT',
+        },
       };
     default:
       return state;

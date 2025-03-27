@@ -68,9 +68,18 @@ const LoginScreen = () => {
   // 监听认证状态变化，当用户登录成功后自动导航到Main页面
   useEffect(() => {
     if (isAuthenticated) {
+      // 如果选择了"记住我"，确保在登录成功后也保存凭证
+      if (rememberMe) {
+        if (loginType === 'password') {
+          saveCredentials(username, password);
+        }
+      } else {
+        // 如果没有选择"记住我"，清除之前保存的信息
+        clearSavedCredentials();
+      }
       navigation.navigate('Main');
     }
-  }, [isAuthenticated, navigation]);
+  }, [isAuthenticated, navigation, rememberMe, username, password, loginType]);
   
   /**
    * 处理登录类型切换
@@ -217,7 +226,7 @@ const LoginScreen = () => {
    */
   const saveCredentials = async (savedUsername: string, savedPassword: string) => {
     try {
-      const credentials = JSON.stringify({savedUsername, savedPassword});
+      const credentials = JSON.stringify({username: savedUsername, password: savedPassword});
       await AsyncStorage.setItem('userCredentials', credentials);
       console.log('登录信息已保存');
     } catch (err) {

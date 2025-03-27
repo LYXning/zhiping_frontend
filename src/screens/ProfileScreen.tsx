@@ -3,7 +3,7 @@
  * 显示教师的个人信息和设置界面
  */
 
-import React from 'react';
+import React, {useEffect} from 'react';
 import {
   View,
   Text,
@@ -14,9 +14,9 @@ import {
   Image,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import { useDispatch } from 'react-redux';
-import { logout } from '../../store/actions/authActions';
-import { AppDispatch } from '../../store';
+import {useDispatch, useSelector} from 'react-redux';
+import {logout} from '../store/actions/authActions';
+import {AppDispatch, RootState} from '../store';
 
 // 导入图标资源
 import {
@@ -26,13 +26,14 @@ import {
   buildingIcon,
   messageSquareIcon,
   lockIcon,
-  homeIcon
-} from '../../assets/icons';
+  homeIcon,
+} from '../assets/icons';
+import {STATUS_BAR_HEIGHT} from '../utils/devicesUtils';
 
 // 图标组件
-const Icon = ({ name, size = 24, color = '#000' }) => {
+const Icon = ({name, size = 24, color = '#000'}) => {
   // 根据图标名称返回对应的图标组件
-  const getIconSource = (iconName) => {
+  const getIconSource = iconName => {
     switch (iconName) {
       case 'settings':
         return settingsIcon;
@@ -48,21 +49,21 @@ const Icon = ({ name, size = 24, color = '#000' }) => {
         return lockIcon;
       default:
         return homeIcon;
-    };
-  }
+    }
+  };
   return (
     <Image
       source={getIconSource(name)}
-      style={{ width: size, height: size, tintColor: color }}
+      style={{width: size, height: size, tintColor: color}}
     />
   );
 };
 
 // 菜单项组件
-const MenuItem = ({ icon, iconColor, title, subtitle, onPress }) => (
+const MenuItem = ({icon, iconColor, title, subtitle, onPress}) => (
   <TouchableOpacity style={styles.menuItem} onPress={onPress}>
     <View style={styles.menuItemLeft}>
-      <View style={[styles.menuItemIcon, { backgroundColor: iconColor + '15' }]}>
+      <View style={[styles.menuItemIcon, {backgroundColor: iconColor + '15'}]}>
         <Icon name={icon} size={20} color={iconColor} />
       </View>
       <View>
@@ -80,16 +81,15 @@ const Divider = () => <View style={styles.divider} />;
 const ProfileScreen = () => {
   const dispatch = useDispatch<AppDispatch>();
 
+  const user = useSelector((state: RootState) => state.auth.user);
+
   const handleLogout = () => {
     dispatch(logout());
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      <LinearGradient
-        colors={['#f0f9ff', '#e0eafc']}
-        style={styles.background}
-      >
+      <LinearGradient colors={['#f0f9ff', '#e0eafc']} style={styles.background}>
         {/* 顶部导航 */}
         <View style={styles.header}>
           <Text style={styles.headerTitle}>个人中心</Text>
@@ -103,29 +103,34 @@ const ProfileScreen = () => {
           <View style={styles.profileCard}>
             <View style={styles.profileHeader}>
               <View style={styles.avatarLarge}>
-                <Text style={styles.avatarText}>李</Text>
+                <Text style={styles.avatarText}>{user.name[0]}</Text>
               </View>
               <View style={styles.profileInfo}>
-                <Text style={styles.profileName}>李老师</Text>
-                <Text style={styles.profileRole}>数学教师</Text>
+                <Text style={styles.profileName}>{user.name}</Text>
+                {user.role === 'TEACHER' ? (
+                  <Text style={styles.profileRole}>数学教师</Text>
+                ) : null}
               </View>
             </View>
-            <View style={styles.profileStats}>
-              <View style={styles.profileStatItem}>
-                <Text style={styles.profileStatValue}>128</Text>
-                <Text style={styles.profileStatLabel}>学生</Text>
+
+            {user.role === 'TEACHER' ? (
+              <View style={styles.profileStats}>
+                <View style={styles.profileStatItem}>
+                  <Text style={styles.profileStatValue}>128</Text>
+                  <Text style={styles.profileStatLabel}>学生</Text>
+                </View>
+                <View style={styles.profileStatDivider} />
+                <View style={styles.profileStatItem}>
+                  <Text style={styles.profileStatValue}>3</Text>
+                  <Text style={styles.profileStatLabel}>班级</Text>
+                </View>
+                <View style={styles.profileStatDivider} />
+                <View style={styles.profileStatItem}>
+                  <Text style={styles.profileStatValue}>26</Text>
+                  <Text style={styles.profileStatLabel}>任务</Text>
+                </View>
               </View>
-              <View style={styles.profileStatDivider} />
-              <View style={styles.profileStatItem}>
-                <Text style={styles.profileStatValue}>3</Text>
-                <Text style={styles.profileStatLabel}>班级</Text>
-              </View>
-              <View style={styles.profileStatDivider} />
-              <View style={styles.profileStatItem}>
-                <Text style={styles.profileStatValue}>26</Text>
-                <Text style={styles.profileStatLabel}>任务</Text>
-              </View>
-            </View>
+            ) : null}
           </View>
 
           {/* 菜单列表 */}
@@ -199,8 +204,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 16,
-    paddingTop: 16,
     paddingBottom: 12,
+    paddingTop: (STATUS_BAR_HEIGHT + 30) / 2,
+    height: STATUS_BAR_HEIGHT + 30,
   },
   headerTitle: {
     fontSize: 18,

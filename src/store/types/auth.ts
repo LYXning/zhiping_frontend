@@ -37,6 +37,11 @@ export enum AuthActionTypes {
   PASSWORD_RESET_SUCCESS = 'PASSWORD_RESET_SUCCESS',
   PASSWORD_RESET_FAILURE = 'PASSWORD_RESET_FAILURE',
 
+  // 获取个人信息
+  GET_PROFILE_REQUEST = 'GET_PROFILE_REQUEST',
+  GET_PROFILE_SUCCESS = 'GET_PROFILE_SUCCESS',
+  GET_PROFILE_FAILURE = 'GET_PROFILE_FAILURE',
+
   // 更新个人信息
   UPDATE_PROFILE_REQUEST = 'UPDATE_PROFILE_REQUEST',
   UPDATE_PROFILE_SUCCESS = 'UPDATE_PROFILE_SUCCESS',
@@ -74,6 +79,7 @@ export type AuthAction =
   | LogoutAction
   | ClearErrorsAction
   | PasswordResetAction
+  | GetProfileAction
   | UpdateProfileAction;
 
 // Action 创建函数类型
@@ -103,6 +109,15 @@ export interface PasswordResetAction {
     | typeof AuthActionTypes.PASSWORD_RESET_REQUEST
     | typeof AuthActionTypes.PASSWORD_RESET_SUCCESS
     | typeof AuthActionTypes.PASSWORD_RESET_FAILURE;
+  payload?: any;
+}
+
+// 添加获取个人信息相关的 Action 接口
+export interface GetProfileAction {
+  type:
+    | typeof AuthActionTypes.GET_PROFILE_REQUEST
+    | typeof AuthActionTypes.GET_PROFILE_SUCCESS
+    | typeof AuthActionTypes.GET_PROFILE_FAILURE;
   payload?: any;
 }
 

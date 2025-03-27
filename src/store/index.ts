@@ -23,7 +23,11 @@ const store = configureStore({
 });
 
 // 导出RootState和AppDispatch类型
-export type RootState = {auth: AuthState;}
+import { TaskState } from './types/task';
+export type RootState = {
+  auth: AuthState;
+  task: TaskState;
+}
 export type AppDispatch = typeof store.dispatch;
 
 // 导出store实例

@@ -28,34 +28,42 @@ import {
   bookIcon,
   fileIcon,
   fileCheckIcon,
-  trendingUpIcon
+  trendingUpIcon,
+  zapIcon,
+  bellIcon,
+  clipboardCheckIcon,
 } from '../../assets/icons';
+import {STATUS_BAR_HEIGHT} from '../../utils/devicesUtils';
+import {useNavigation} from '@react-navigation/native';
+import {AnalysisCard} from '../../components/specific/AnalysisCard';
+import {useSelector} from 'react-redux';
+import {RootState} from '../../store';
 
 // 临时使用的图标组件，后续可替换为实际图标
 const Icon = ({name, size = 24, color = '#000'}) => {
   // 根据图标名称返回对应的图标组件
-  const getIconSource = (iconName) => {
+  const getIconSource = iconName => {
     switch (iconName) {
       case 'zap':
-        return homeIcon; // 临时替代
+        return zapIcon; // 临时替代
       case 'bell':
-        return messageCircleIcon; // 临时替代
+        return bellIcon; // 临时替代
       case 'search':
-        return searchIcon; 
+        return searchIcon;
       case 'scan-line':
-        return scanIcon; 
+        return scanIcon;
       case 'clipboard-check':
-        return checkCircleIcon; // 临时替代
+        return clipboardCheckIcon; // 临时替代
       case 'bar-chart-2':
-        return chartIcon; 
+        return chartIcon;
       case 'book-open':
-        return bookIcon; 
+        return bookIcon;
       case 'file-text':
-        return fileIcon; 
+        return fileIcon;
       case 'file-check':
-        return fileCheckIcon; 
+        return fileCheckIcon;
       case 'trending-up':
-        return trendingUpIcon; 
+        return trendingUpIcon;
       default:
         return homeIcon;
     }
@@ -70,18 +78,31 @@ const Icon = ({name, size = 24, color = '#000'}) => {
 };
 
 // 快捷功能项组件
-const QuickActionItem = ({icon, color, bgColor, label}) => (
-  <View style={styles.quickActionItem}>
-    <View
-      style={[styles.quickActionIconContainer, {backgroundColor: bgColor}]}>
+const QuickActionItem = ({icon, color, bgColor, label, onPress}) => (
+  <TouchableOpacity style={styles.quickActionItem} onPress={onPress}>
+    <View style={[styles.quickActionIconContainer, {backgroundColor: bgColor}]}>
       <Icon name={icon} size={24} color={color} />
     </View>
     <Text style={styles.quickActionLabel}>{label}</Text>
-  </View>
+  </TouchableOpacity>
 );
 
 // 任务卡片组件
-const TaskCard = ({icon, iconBg, iconColor, title, subtitle, status, statusBg, statusColor, deadline, buttonText, buttonBg, buttonColor, onPress}) => (
+const TaskCard = ({
+  icon,
+  iconBg,
+  iconColor,
+  title,
+  subtitle,
+  status,
+  statusBg,
+  statusColor,
+  deadline,
+  buttonText,
+  buttonBg,
+  buttonColor,
+  onPress,
+}) => (
   <View style={styles.taskCard}>
     <View style={styles.taskCardHeader}>
       <View style={styles.taskCardTitleContainer}>
@@ -94,60 +115,38 @@ const TaskCard = ({icon, iconBg, iconColor, title, subtitle, status, statusBg, s
         </View>
       </View>
       <View style={[styles.taskCardStatus, {backgroundColor: statusBg}]}>
-        <Text style={[styles.taskCardStatusText, {color: statusColor}]}>{status}</Text>
+        <Text style={[styles.taskCardStatusText, {color: statusColor}]}>
+          {status}
+        </Text>
       </View>
     </View>
     <View style={styles.taskCardFooter}>
       <Text style={styles.taskCardDeadline}>{deadline}</Text>
-      <TouchableOpacity 
-        style={[styles.taskCardButton, {backgroundColor: buttonBg}]} 
-        onPress={onPress}
-      >
-        <Text style={[styles.taskCardButtonText, {color: buttonColor}]}>{buttonText}</Text>
+      <TouchableOpacity
+        style={[styles.taskCardButton, {backgroundColor: buttonBg}]}
+        onPress={onPress}>
+        <Text style={[styles.taskCardButtonText, {color: buttonColor}]}>
+          {buttonText}
+        </Text>
       </TouchableOpacity>
     </View>
   </View>
 );
 
-// 分析卡片组件
-const AnalysisCard = ({title, subtitle, value, change, changeType}) => (
-  <View style={styles.analysisCard}>
-    <View style={styles.analysisCardHeader}>
-      <Text style={styles.analysisCardTitle}>{title}</Text>
-      <Text style={styles.analysisCardSubtitle}>{subtitle}</Text>
-    </View>
-    <View style={styles.analysisCardContent}>
-      <Text style={styles.analysisCardValue}>{value}</Text>
-      <View style={styles.analysisCardChange}>
-        <Icon 
-          name={changeType === 'up' ? 'trending-up' : 'trending-down'} 
-          size={16} 
-          color={changeType === 'up' ? '#10b981' : '#ef4444'} 
-        />
-        <Text 
-          style={[styles.analysisCardChangeText, 
-            {color: changeType === 'up' ? '#10b981' : '#ef4444'}]}
-        >
-          {change}
-        </Text>
-      </View>
-    </View>
-  </View>
-);
+const HomeScreen = () => {
+  const user = useSelector((state: RootState) => state.auth.user);
+  console.log(user);
+  const navigation = useNavigation();
 
-const HomeScreen = ({navigation}) => {
-  // 处理添加按钮点击
-  const handleAddPress = () => {
-    // 导航到创建任务页面
+  // 处理扫描试卷点击
+  const handleScanPress = () => {
+    // 导航到创建任务页面并传递参数，指定为试卷批改类型
     navigation.navigate('CreateTask');
   };
-  
+
   return (
     <SafeAreaView style={styles.container}>
-      <LinearGradient
-        colors={['#f0f9ff', '#e0eafc']}
-        style={styles.background}
-      >
+      <LinearGradient colors={['#f0f9ff', '#e0eafc']} style={styles.background}>
         {/* 顶部导航 */}
         <View style={styles.header}>
           <View style={styles.headerTitleContainer}>
@@ -159,14 +158,19 @@ const HomeScreen = ({navigation}) => {
               <Icon name="bell" size={20} color="#4b5563" />
             </TouchableOpacity>
             <View style={styles.avatarContainer}>
-              <Text style={styles.avatarText}>李</Text>
+              <Text style={styles.avatarText}>{user.name}</Text>
             </View>
           </View>
         </View>
 
         {/* 搜索框 */}
         <View style={styles.searchContainer}>
-          <Icon name="search" size={16} color="#9ca3af" style={styles.searchIcon} />
+          <Icon
+            name="search"
+            size={16}
+            color="#9ca3af"
+            style={styles.searchIcon}
+          />
           <TextInput
             style={styles.searchInput}
             placeholder="搜索试卷、知识点或资源..."
@@ -177,29 +181,33 @@ const HomeScreen = ({navigation}) => {
         <ScrollView style={styles.scrollView}>
           {/* 快捷功能 */}
           <View style={styles.quickActions}>
-            <QuickActionItem 
-              icon="scan-line" 
-              color="#dc2626" 
-              bgColor="#fee2e2" 
-              label="扫描试卷" 
+            <QuickActionItem
+              icon="scan-line"
+              color="#dc2626"
+              bgColor="#fee2e2"
+              label="扫描试卷"
+              onPress={handleScanPress}
             />
-            <QuickActionItem 
-              icon="clipboard-check" 
-              color="#16a34a" 
-              bgColor="#dcfce7" 
-              label="批改作业" 
+            <QuickActionItem
+              icon="clipboard-check"
+              color="#16a34a"
+              bgColor="#dcfce7"
+              label="批改作业"
+              onPress={() => console.log('批改作业')}
             />
-            <QuickActionItem 
-              icon="bar-chart-2" 
-              color="#7c3aed" 
-              bgColor="#f3e8ff" 
-              label="数据分析" 
+            <QuickActionItem
+              icon="bar-chart-2"
+              color="#7c3aed"
+              bgColor="#f3e8ff"
+              label="数据分析"
+              onPress={() => console.log('数据分析')}
             />
-            <QuickActionItem 
-              icon="book-open" 
-              color="#ca8a04" 
-              bgColor="#fef3c7" 
-              label="学习资源" 
+            <QuickActionItem
+              icon="book-open"
+              color="#ca8a04"
+              bgColor="#fef3c7"
+              label="学习资源"
+              onPress={() => console.log('学习资源')}
             />
           </View>
 
@@ -213,7 +221,7 @@ const HomeScreen = ({navigation}) => {
             </View>
 
             <View style={styles.taskList}>
-              <TaskCard 
+              <TaskCard
                 icon="file-text"
                 iconBg="#dbeafe"
                 iconColor="#0284c7"
@@ -229,7 +237,7 @@ const HomeScreen = ({navigation}) => {
                 onPress={() => console.log('开始批改')}
               />
 
-              <TaskCard 
+              <TaskCard
                 icon="file-check"
                 iconBg="#dcfce7"
                 iconColor="#16a34a"
@@ -256,31 +264,36 @@ const HomeScreen = ({navigation}) => {
               </TouchableOpacity>
             </View>
 
-            <ScrollView 
-              horizontal 
+            <ScrollView
+              horizontal
               showsHorizontalScrollIndicator={false}
-              style={styles.analysisScrollView}
-            >
-              <AnalysisCard 
-                title="平均分"
-                subtitle="高二(3)班 · 数学"
-                value="86.5"
-                change="+2.3"
-                changeType="up"
+              style={styles.analysisScrollView}>
+              <AnalysisCard
+                title="高二(3)班期中考试分析"
+                subtitle="数学 · 2023年春季学期"
+                averageScore={85.2}
+                maxScore={92}
+                minScore={65}
+                passRate="78%"
+                excellentRate="35%"
               />
-              <AnalysisCard 
-                title="及格率"
-                subtitle="高一(2)班 · 物理"
-                value="92%"
-                change="+5%"
-                changeType="up"
+              <AnalysisCard
+                title="高一(2)班月考分析"
+                subtitle="物理 · 2023年春季学期"
+                averageScore={82.5}
+                maxScore={95}
+                minScore={60}
+                passRate="85%"
+                excellentRate="40%"
               />
-              <AnalysisCard 
-                title="优秀率"
-                subtitle="高三(1)班 · 英语"
-                value="45%"
-                change="-3%"
-                changeType="down"
+              <AnalysisCard
+                title="高三(1)班模拟考试"
+                subtitle="英语 · 2023年春季学期"
+                averageScore={78.3}
+                maxScore={98}
+                minScore={55}
+                passRate="75%"
+                excellentRate="30%"
               />
             </ScrollView>
           </View>
@@ -302,7 +315,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 16,
-    paddingTop: 16,
+    paddingTop: STATUS_BAR_HEIGHT + 16,
   },
   headerTitleContainer: {
     flexDirection: 'row',
@@ -470,12 +483,23 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 12,
     marginHorizontal: 4,
-    width: 150,
+    width: 280,
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.18)',
   },
-  analysisCardHeader: {
-    marginBottom: 8,
+  analysisCardHeaderNew: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+    gap: 12,
+  },
+  analysisCardIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 8,
+    backgroundColor: '#dbeafe',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   analysisCardTitle: {
     fontSize: 14,
@@ -487,24 +511,53 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#6b7280',
   },
-  analysisCardContent: {
+  analysisCardProgressContainer: {
+    backgroundColor: '#ffffff',
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 12,
+  },
+  analysisCardProgressHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'flex-end',
-  },
-  analysisCardValue: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#1f2937',
-  },
-  analysisCardChange: {
-    flexDirection: 'row',
     alignItems: 'center',
-    gap: 2,
+    marginBottom: 8,
   },
-  analysisCardChangeText: {
+  analysisCardProgressLabel: {
+    fontSize: 12,
+    color: '#4b5563',
+  },
+  analysisCardProgressValue: {
     fontSize: 12,
     fontWeight: '500',
+    color: '#0284c7',
+  },
+  analysisCardProgressBar: {
+    width: '100%',
+    height: 8,
+    backgroundColor: '#f3f4f6',
+    borderRadius: 4,
+  },
+  analysisCardProgressFill: {
+    height: '100%',
+    backgroundColor: '#0284c7',
+    borderRadius: 4,
+  },
+  analysisCardStats: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  analysisCardStatItem: {
+    alignItems: 'center',
+  },
+  analysisCardStatValue: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#1f2937',
+  },
+  analysisCardStatLabel: {
+    fontSize: 12,
+    color: '#6b7280',
   },
 });
 

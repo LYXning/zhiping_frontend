@@ -70,7 +70,7 @@ const errorCodeMap: Record<string, string> = {
 const handleApiError = (error: any): string => {
   try {
     console.log('处理错误类型:', typeof error);
-    
+
     // 防止JSON.stringify导致的循环引用错误
     let errorLog;
     try {
@@ -80,20 +80,24 @@ const handleApiError = (error: any): string => {
       console.log('错误无法序列化:', e);
       errorLog = '错误对象无法序列化';
     }
-    
+
     // 处理响应数据不符合预期的情况
     if (error && typeof error === 'object' && 'data' in error) {
       const responseData = error.data;
-      
+
       // 检查是否有错误码和错误信息
-      if (responseData && responseData.code && errorCodeMap[responseData.code]) {
+      if (
+        responseData &&
+        responseData.code &&
+        errorCodeMap[responseData.code]
+      ) {
         return errorCodeMap[responseData.code];
       }
-      
+
       if (responseData && responseData.message) {
         return responseData.message;
       }
-      
+
       // 如果有其他有用信息，尝试提取
       try {
         return `服务器响应异常: ${JSON.stringify(responseData)}`;
@@ -101,12 +105,12 @@ const handleApiError = (error: any): string => {
         return '服务器响应异常且无法解析';
       }
     }
-    
+
     // 如果错误是普通字符串
     if (typeof error === 'string') {
       return error;
     }
-    
+
     if (axios.isAxiosError(error)) {
       if (error.code === 'ECONNABORTED') {
         return '网络请求超时，请检查网络连接后重试';
@@ -235,7 +239,7 @@ export const login = (username: string, password: string) => {
       Toast.show({
         type: 'success',
         text1: '登录成功',
-        text2: `欢迎回来，${user?.username || '用户'}！`,
+        text2: `欢迎回来，${user?.name || user?.username || '用户'}！`, // 优先使用name字段
         position: 'bottom',
         visibilityTime: 2000,
       });
@@ -300,7 +304,7 @@ export const loginWithSms = (phone: string, smsCode: string) => {
       Toast.show({
         type: 'success',
         text1: '登录成功',
-        text2: `欢迎回来，${user?.username || '用户'}！`,
+        text2: `欢迎回来，${user?.name || user?.username || '用户'}！`, // 优先使用name字段
         position: 'bottom',
         visibilityTime: 2000,
       });
@@ -339,15 +343,16 @@ export const sendSmsCode = (phone: string, type: string) => {
 
     try {
       // 调用发送验证码API，传入手机号和类型
-      const response =  await api.post('/send-verification-code?phone=' + phone + '&type=' + type);
+      const response = await api.post(
+        '/send-verification-code?phone=' + phone + '&type=' + type,
+      );
       console.log('登录响应:', response.data);
 
       // 修正：正确解析嵌套的响应数据结构
-      if (!response.data || !response.data.data || !response.data.data.token) {
+      if (!response.data || !response.data.data) {
         console.error('响应数据结构不符合预期:', response.data);
         throw response;
       }
-
 
       // 显示成功提示
       Toast.show({
@@ -387,7 +392,7 @@ export const register = (userData: registerData) => {
   return async (dispatch: Dispatch<AuthAction>) => {
     dispatch({type: AuthActionTypes.REGISTER_REQUEST});
 
-    const {username, password, phone, smsCode, studentID, school, role} =
+    const {username, password, phone, name, smsCode, studentID, school, role} =
       userData;
 
     try {
@@ -397,6 +402,7 @@ export const register = (userData: registerData) => {
         password,
         phone,
         verificationCode: smsCode,
+        name, // 确保name字段被正确传递
         studentID,
         school,
         role,
@@ -420,7 +426,7 @@ export const register = (userData: registerData) => {
       Toast.show({
         type: 'success',
         text1: '注册成功',
-        text2: '欢迎加入智评！',
+        text2: `欢迎加入智评，${name || username}！`, // 优先使用name字段
         position: 'bottom',
         visibilityTime: 2000,
       });
@@ -744,6 +750,7 @@ export const updateUserProfile = (userId: string, profileData: any) => {
       Toast.show({
         type: 'success',
         text1: '个人信息更新成功',
+        text2: profileData.name ? `已更新为 ${profileData.name}` : '', // 如果更新了name，显示新的name
         position: 'bottom',
         visibilityTime: 2000,
       });
@@ -773,6 +780,65 @@ export const updateUserProfile = (userId: string, profileData: any) => {
         payload: errorMessage,
       });
       return false;
+    }
+  };
+};
+
+export const getUserProfile = () => {
+  return async (dispatch: Dispatch<AuthAction>) => {
+    dispatch({type: AuthActionTypes.GET_PROFILE_REQUEST});
+
+    try {
+      // 获取token
+      let token;
+      if (Platform.OS === 'android' || Platform.OS === 'ios') {
+        token = await AsyncStorage.getItem('token');
+      } else {
+        token = localStorage.getItem('token');
+      }
+
+      if (!token) {
+        throw new Error('未授权，请先登录');
+      }
+
+      // 调用获取用户信息API
+      const response = await api.get(`/auth/user-info`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      // 修正：正确解析嵌套的响应数据结构
+      if (!response.data || !response.data.data) {
+        console.error('响应数据结构不符合预期:', response.data);
+        throw new Error('服务器响应缺少用户信息');
+      }
+
+      dispatch({
+        type: AuthActionTypes.GET_PROFILE_SUCCESS,
+        payload: {user: response.data.data.user},
+      });
+      return response.data.data.user;
+    } catch (error) {
+      console.error('获取用户信息错误:', error);
+
+      // 使用通用错误处理函数
+      const errorMessage = handleApiError(error);
+
+      // 显示错误提示
+      Toast.show({
+        type: 'error',
+        text1: '获取个人信息失败',
+        text2: errorMessage,
+        position: 'bottom',
+        visibilityTime: 3000,
+      });
+
+      dispatch({
+        type: AuthActionTypes.GET_PROFILE_FAILURE,
+        payload: errorMessage,
+      });
+      return null;
     }
   };
 };

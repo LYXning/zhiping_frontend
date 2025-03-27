@@ -5,6 +5,7 @@ import AppNavigator from './navigation';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 
+
 const App = () => {
   return (
     <Provider store={store}>
