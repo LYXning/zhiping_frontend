@@ -1,4 +1,4 @@
-import { TaskState, TaskActionTypes, TaskAction } from '../types/task';
+import {TaskState, TaskActionTypes, TaskAction} from '../types/task';
 
 // 初始状态
 const initialState: TaskState = {
@@ -90,7 +90,7 @@ const taskReducer = (state = initialState, action: TaskAction): TaskState => {
         ...state,
         loading: false,
         tasks: state.tasks.map(task =>
-          task.id === action.payload.id ? action.payload : task
+          task.id === action.payload.id ? action.payload : task,
         ),
         currentTask: action.payload,
         success: true,
@@ -115,7 +115,8 @@ const taskReducer = (state = initialState, action: TaskAction): TaskState => {
         ...state,
         loading: false,
         tasks: state.tasks.filter(task => task.id !== action.payload),
-        currentTask: state.currentTask?.id === action.payload ? null : state.currentTask,
+        currentTask:
+          state.currentTask?.id === action.payload ? null : state.currentTask,
       };
     case TaskActionTypes.DELETE_TASK_FAILURE:
       return {
@@ -187,4 +188,3 @@ const taskReducer = (state = initialState, action: TaskAction): TaskState => {
 };
 
 export default taskReducer;
-

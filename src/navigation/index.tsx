@@ -8,8 +8,8 @@ import {RootState, AppDispatch} from '../store';
 import {validateToken} from '../store/actions/authActions';
 import MainNavigator from './MainNavigator';
 import TaskNavigator from './TaskNavigator';
-import CreatePaperScreen from '../screens/student/CreatePaperScreen';
-import {AppState, Platform, PermissionsAndroid, LogBox} from 'react-native';
+import StudentNavigator from './StudentNavigator';
+import {AppState, Platform, LogBox} from 'react-native';
 
 // 忽略特定的警告信息
 LogBox.ignoreLogs([
@@ -25,7 +25,7 @@ export type RootStackParamList = {
   Register: undefined;
   Main: undefined;
   Task: undefined;
-  CreatePaper: {taskId?: string; taskName?: string};
+  Student: undefined;
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -71,7 +71,7 @@ const AppNavigator = () => {
             }}>
             <Stack.Screen name="Main" component={MainNavigator} />
             <Stack.Screen name="Task" component={TaskNavigator} />
-            <Stack.Screen name="CreatePaper" component={CreatePaperScreen} />
+            <Stack.Screen name="Student" component={StudentNavigator} />
           </Stack.Navigator>
         </NavigationContainer>
       );

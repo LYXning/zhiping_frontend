@@ -36,6 +36,7 @@ import {useNavigation} from '@react-navigation/native';
 import {AnalysisCard} from '../../components/specific/AnalysisCard';
 import {useSelector} from 'react-redux';
 import {RootState} from '../../store';
+import {TaskCard} from '../../components/specific/TaskCard';
 
 // 临时使用的图标组件，后续可替换为实际图标
 const Icon = ({name, size = 24, color = '#000'}) => {
@@ -85,52 +86,6 @@ const QuickActionItem = ({icon, color, bgColor, label, onPress}) => (
   </TouchableOpacity>
 );
 
-// 任务卡片组件
-const TaskCard = ({
-  icon,
-  iconBg,
-  iconColor,
-  title,
-  subtitle,
-  status,
-  statusBg,
-  statusColor,
-  deadline,
-  buttonText,
-  buttonBg,
-  buttonColor,
-  onPress,
-}) => (
-  <View style={styles.taskCard}>
-    <View style={styles.taskCardHeader}>
-      <View style={styles.taskCardTitleContainer}>
-        <View style={[styles.taskCardIcon, {backgroundColor: iconBg}]}>
-          <Icon name={icon} size={20} color={iconColor} />
-        </View>
-        <View>
-          <Text style={styles.taskCardTitle}>{title}</Text>
-          <Text style={styles.taskCardSubtitle}>{subtitle}</Text>
-        </View>
-      </View>
-      <View style={[styles.taskCardStatus, {backgroundColor: statusBg}]}>
-        <Text style={[styles.taskCardStatusText, {color: statusColor}]}>
-          {status}
-        </Text>
-      </View>
-    </View>
-    <View style={styles.taskCardFooter}>
-      <Text style={styles.taskCardDeadline}>{deadline}</Text>
-      <TouchableOpacity
-        style={[styles.taskCardButton, {backgroundColor: buttonBg}]}
-        onPress={onPress}>
-        <Text style={[styles.taskCardButtonText, {color: buttonColor}]}>
-          {buttonText}
-        </Text>
-      </TouchableOpacity>
-    </View>
-  </View>
-);
-
 const HomeScreen = () => {
   const user = useSelector((state: RootState) => state.auth.user);
   console.log(user);
@@ -139,8 +94,10 @@ const HomeScreen = () => {
 
   // 处理扫描试卷点击
   const handleScanPress = () => {
-    // 导航到创建任务页面并传递参数，指定为试卷批改类型
-    navigation.navigate('CreatePaper', {taskId: '123', taskName: '数学作业'});
+    // 修改为通过Student导航器访问CreatePaper
+    navigation.navigate('Student', {
+      screen: 'CreatePaper',
+    });
   };
 
   return (
@@ -221,35 +178,61 @@ const HomeScreen = () => {
 
             <View style={styles.taskList}>
               <TaskCard
+                id={1}
                 icon="file-text"
                 iconBg="#dbeafe"
-                iconColor="#0284c7"
+                iconColor="0284c7"
+                title="物理周测试卷"
+                subtitle="高二(3)班 · 35份"
+                deadline="截止日期 = 今天"
+                status={1}
+                showActionButton={true}
+              />
+              <TaskCard
+                id={2}
+                icon="file-text"
+                iconBg="#dbeafe"
+                iconColor="0284c7"
                 title="期中数学试卷"
                 subtitle="高二(3)班 · 35份"
-                status="待批改"
-                statusBg="#fef3c7"
-                statusColor="#b45309"
-                deadline="截止日期: 今天"
-                buttonText="开始批改"
-                buttonBg="#0ea5e9"
-                buttonColor="#ffffff"
-                onPress={() => console.log('开始批改')}
+                deadline="截止日期= 今天"
+                status={2}
+                showActionButton={true}
               />
 
               <TaskCard
-                icon="file-check"
-                iconBg="#dcfce7"
-                iconColor="#16a34a"
-                title="物理周测"
-                subtitle="高一(2)班 · 42份"
-                status="已完成"
-                statusBg="#dcfce7"
-                statusColor="#16a34a"
-                deadline="完成时间: 昨天 15:30"
-                buttonText="查看报告"
-                buttonBg="#ffffff"
-                buttonColor="#4b5563"
-                onPress={() => console.log('查看报告')}
+                id={3}
+                icon="file-text"
+                iconBg="#dbeafe"
+                iconColor="0284c7"
+                title="期中数学试卷"
+                subtitle="高二(3)班 · 35份"
+                deadline="截止日期= 今天"
+                status={3}
+                showActionButton={true}
+              />
+
+              <TaskCard
+                id={3}
+                icon="file-text"
+                iconBg="#dbeafe"
+                iconColor="0284c7"
+                title="期中数学试卷"
+                subtitle="高二(3)班 · 35份"
+                deadline="截止日期= 今天"
+                status={4}
+                showActionButton={true}
+              />
+              <TaskCard
+                id={5}
+                icon="file-text"
+                iconBg="#dbeafe"
+                iconColor="0284c7"
+                title="期中数学试卷"
+                subtitle="高二(3)班 · 35份"
+                deadline="截止日期= 今天"
+                status={5}
+                showActionButton={true}
               />
             </View>
           </View>

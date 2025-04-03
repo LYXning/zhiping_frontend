@@ -38,6 +38,7 @@ import {useNavigation} from '@react-navigation/native';
 import {AnalysisCard} from '../../components/specific/AnalysisCard';
 import {useSelector} from 'react-redux';
 import {RootState} from '../../store';
+import {TaskCard} from '../../components/specific/TaskCard';
 
 // 临时使用的图标组件，后续可替换为实际图标
 const Icon = ({name, size = 24, color = '#000'}) => {
@@ -85,52 +86,6 @@ const QuickActionItem = ({icon, color, bgColor, label, onPress}) => (
     </View>
     <Text style={styles.quickActionLabel}>{label}</Text>
   </TouchableOpacity>
-);
-
-// 任务卡片组件
-const TaskCard = ({
-  icon,
-  iconBg,
-  iconColor,
-  title,
-  subtitle,
-  status,
-  statusBg,
-  statusColor,
-  deadline,
-  buttonText,
-  buttonBg,
-  buttonColor,
-  onPress,
-}) => (
-  <View style={styles.taskCard}>
-    <View style={styles.taskCardHeader}>
-      <View style={styles.taskCardTitleContainer}>
-        <View style={[styles.taskCardIcon, {backgroundColor: iconBg}]}>
-          <Icon name={icon} size={20} color={iconColor} />
-        </View>
-        <View>
-          <Text style={styles.taskCardTitle}>{title}</Text>
-          <Text style={styles.taskCardSubtitle}>{subtitle}</Text>
-        </View>
-      </View>
-      <View style={[styles.taskCardStatus, {backgroundColor: statusBg}]}>
-        <Text style={[styles.taskCardStatusText, {color: statusColor}]}>
-          {status}
-        </Text>
-      </View>
-    </View>
-    <View style={styles.taskCardFooter}>
-      <Text style={styles.taskCardDeadline}>{deadline}</Text>
-      <TouchableOpacity
-        style={[styles.taskCardButton, {backgroundColor: buttonBg}]}
-        onPress={onPress}>
-        <Text style={[styles.taskCardButtonText, {color: buttonColor}]}>
-          {buttonText}
-        </Text>
-      </TouchableOpacity>
-    </View>
-  </View>
 );
 
 const HomeScreen = () => {
@@ -224,33 +179,59 @@ const HomeScreen = () => {
               <TaskCard
                 icon="file-text"
                 iconBg="#dbeafe"
-                iconColor="#0284c7"
+                iconColor="0284c7"
+                title="物理周测试卷"
+                subtitle="高二(3)班 · 35份"
+                deadline="截止日期= 今天"
+                status={1}
+                showActionButton={true}
+                onPress={() => console.log('开始批改')}
+              />
+              <TaskCard
+                icon="file-text"
+                iconBg="#dbeafe"
+                iconColor="0284c7"
                 title="期中数学试卷"
                 subtitle="高二(3)班 · 35份"
-                status="待批改"
-                statusBg="#fef3c7"
-                statusColor="#b45309"
-                deadline="截止日期: 今天"
-                buttonText="开始批改"
-                buttonBg="#0ea5e9"
-                buttonColor="#ffffff"
+                deadline="截止日期= 今天"
+                status={2}
+                showActionButton={true}
                 onPress={() => console.log('开始批改')}
               />
 
               <TaskCard
-                icon="file-check"
-                iconBg="#dcfce7"
-                iconColor="#16a34a"
-                title="物理周测"
-                subtitle="高一(2)班 · 42份"
-                status="已完成"
-                statusBg="#dcfce7"
-                statusColor="#16a34a"
-                deadline="完成时间: 昨天 15:30"
-                buttonText="查看报告"
-                buttonBg="#ffffff"
-                buttonColor="#4b5563"
-                onPress={() => console.log('查看报告')}
+                icon="file-text"
+                iconBg="#dbeafe"
+                iconColor="0284c7"
+                title="期中数学试卷"
+                subtitle="高二(3)班 · 35份"
+                deadline="截止日期= 今天"
+                status={3}
+                showActionButton={true}
+                onPress={() => console.log('开始批改')}
+              />
+
+              <TaskCard
+                icon="file-text"
+                iconBg="#dbeafe"
+                iconColor="0284c7"
+                title="期中数学试卷"
+                subtitle="高二(3)班 · 35份"
+                deadline="截止日期= 今天"
+                status={4}
+                showActionButton={true}
+                onPress={() => console.log('开始批改')}
+              />
+              <TaskCard
+                icon="file-text"
+                iconBg="#dbeafe"
+                iconColor="0284c7"
+                title="期中数学试卷"
+                subtitle="高二(3)班 · 35份"
+                deadline="截止日期= 今天"
+                status={5}
+                showActionButton={true}
+                onPress={() => console.log('开始批改')}
               />
             </View>
           </View>
@@ -412,68 +393,6 @@ const styles = StyleSheet.create({
   },
   taskList: {
     gap: 12,
-  },
-  taskCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.25)',
-    borderRadius: 12,
-    padding: 12,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.18)',
-  },
-  taskCardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  taskCardTitleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  taskCardIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  taskCardTitle: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#1f2937',
-  },
-  taskCardSubtitle: {
-    fontSize: 12,
-    color: '#6b7280',
-  },
-  taskCardStatus: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  taskCardStatusText: {
-    fontSize: 12,
-    fontWeight: '500',
-  },
-  taskCardFooter: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  taskCardDeadline: {
-    fontSize: 12,
-    color: '#6b7280',
-  },
-  taskCardButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 8,
-  },
-  taskCardButtonText: {
-    fontSize: 12,
-    fontWeight: '500',
   },
   analysisScrollView: {
     marginHorizontal: -4,

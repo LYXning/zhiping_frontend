@@ -41,14 +41,56 @@ api.interceptors.request.use(
   },
 );
 
-// 添加响应拦截器，用于调试
+// 添加响应拦截器，用于调试和处理token过期
 api.interceptors.response.use(
   response => {
     console.log('响应状态:', response.status);
     return response;
   },
-  error => {
+  async error => {
     console.error('响应拦截器错误:', error.message);
+
+    // 检查是否是token过期错误
+    if (
+      axios.isAxiosError(error) &&
+      (error.response?.status === 401 || error.response?.data?.code === '1003')
+    ) {
+      console.log('Token已过期，尝试刷新...');
+
+      // 获取原始请求配置
+      const originalRequest = error.config;
+
+      // 防止无限循环：如果已经尝试过刷新token，则不再尝试
+      if (!originalRequest._retry) {
+        originalRequest._retry = true;
+
+        try {
+          // 尝试刷新token
+          const newToken = await refreshToken();
+
+          if (newToken) {
+            // 更新原始请求的Authorization头
+            originalRequest.headers['Authorization'] = `Bearer ${newToken}`;
+
+            // 重新发送原始请求
+            return api(originalRequest);
+          }
+        } catch (refreshError) {
+          console.error('刷新token失败:', refreshError);
+          // 刷新失败，清除token并通知用户重新登录
+          await clearToken();
+
+          Toast.show({
+            type: 'info',
+            text1: '登录已过期',
+            text2: '请重新登录',
+            position: 'bottom',
+            visibilityTime: 3000,
+          });
+        }
+      }
+    }
+
     return Promise.reject(error);
   },
 );
@@ -190,15 +232,60 @@ const clearToken = async (): Promise<void> => {
   }
 };
 
-// 获取token的辅助函数
-const getToken = async (): Promise<string | null> => {
+// 获取token的辅助函数，增加token有效性检查
+export const getToken = async (): Promise<string | null> => {
   try {
+    let token = null;
+
     if (Platform.OS === 'android' || Platform.OS === 'ios') {
-      return await AsyncStorage.getItem('token');
+      token = await AsyncStorage.getItem('token');
     } else {
       // Web环境
-      return localStorage.getItem('token');
+      token = localStorage.getItem('token');
     }
+
+    if (!token) {
+      console.log('没有找到token');
+      return null;
+    }
+
+    // 检查token是否为JWT格式并验证是否过期
+    if (token.split('.').length === 3) {
+      try {
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(
+          atob(base64)
+            .split('')
+            .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+            .join(''),
+        );
+
+        const payload = JSON.parse(jsonPayload);
+        const currentTime = Date.now() / 1000;
+
+        // 如果token即将过期（小于5分钟），尝试刷新
+        if (payload.exp && payload.exp - currentTime < 300) {
+          console.log('Token即将过期，尝试刷新...');
+          const newToken = await refreshToken();
+          if (newToken) {
+            return newToken;
+          }
+        }
+
+        // 如果token已过期，返回null
+        if (payload.exp && payload.exp < currentTime) {
+          console.log('Token已过期');
+          await clearToken();
+          return null;
+        }
+      } catch (parseError) {
+        console.error('解析token失败:', parseError);
+        // 解析失败，仍然返回原token
+      }
+    }
+
+    return token;
   } catch (error) {
     console.error('获取token失败:', error);
     return null;
@@ -789,20 +876,15 @@ export const getUserProfile = () => {
     dispatch({type: AuthActionTypes.GET_PROFILE_REQUEST});
 
     try {
-      // 获取token
-      let token;
-      if (Platform.OS === 'android' || Platform.OS === 'ios') {
-        token = await AsyncStorage.getItem('token');
-      } else {
-        token = localStorage.getItem('token');
-      }
+      // 获取token（可能会自动刷新）
+      const token = await getToken();
 
       if (!token) {
         throw new Error('未授权，请先登录');
       }
 
       // 调用获取用户信息API
-      const response = await api.get(`/auth/user-info`, {
+      const response = await api.get(`/user-info`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

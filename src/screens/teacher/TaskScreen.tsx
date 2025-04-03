@@ -13,7 +13,7 @@ import {
   TouchableOpacity,
   Image,
 } from 'react-native';
-import { STATUS_BAR_HEIGHT } from '../../utils/devicesUtils';
+import {STATUS_BAR_HEIGHT} from '../../utils/devicesUtils';
 import LinearGradient from 'react-native-linear-gradient';
 
 // 导入图标资源
@@ -23,14 +23,15 @@ import {
   fileIcon,
   checkCircleIcon,
   clockIcon,
-  homeIcon
+  homeIcon,
 } from '../../assets/icons';
-import { useNavigation } from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
+// import {TaskCard} from '../../components/specific/TaskCard';
 
 // 图标组件
 const Icon = ({name, size = 24, color = '#000'}) => {
   // 根据图标名称返回对应的图标组件
-  const getIconSource = (iconName) => {
+  const getIconSource = iconName => {
     switch (iconName) {
       case 'filter':
         return filterIcon;
@@ -55,42 +56,6 @@ const Icon = ({name, size = 24, color = '#000'}) => {
   );
 };
 
-// 任务卡片组件
-const TaskCard = ({icon, iconBg, iconColor, title, subtitle, status, statusBg, statusColor, date, progress}) => (
-  <View style={styles.taskCard}>
-    <View style={styles.taskCardHeader}>
-      <View style={styles.taskCardTitleContainer}>
-        <View style={[styles.taskCardIcon, {backgroundColor: iconBg}]}>
-          <Icon name={icon} size={20} color={iconColor} />
-        </View>
-        <View>
-          <Text style={styles.taskCardTitle}>{title}</Text>
-          <Text style={styles.taskCardSubtitle}>{subtitle}</Text>
-        </View>
-      </View>
-      <View style={[styles.taskCardStatus, {backgroundColor: statusBg}]}>
-        <Text style={[styles.taskCardStatusText, {color: statusColor}]}>{status}</Text>
-      </View>
-    </View>
-    <View style={styles.taskCardFooter}>
-      <View style={styles.taskCardDateContainer}>
-        <Icon name="clock" size={12} color="#6b7280" />
-        <Text style={styles.taskCardDate}>{date}</Text>
-      </View>
-      {progress && (
-        <View style={styles.progressContainer}>
-          <View style={styles.progressBar}>
-            <View 
-              style={[styles.progressFill, {width: `${progress}%`}]} 
-            />
-          </View>
-          <Text style={styles.progressText}>{progress}%</Text>
-        </View>
-      )}
-    </View>
-  </View>
-);
-
 const TaskScreen = () => {
   const [activeTab, setActiveTab] = useState('all');
 
@@ -98,7 +63,8 @@ const TaskScreen = () => {
     <TouchableOpacity
       style={[styles.tabButton, isActive && styles.activeTabButton]}
       onPress={() => setActiveTab(id)}>
-      <Text style={[styles.tabButtonText, isActive && styles.activeTabButtonText]}>
+      <Text
+        style={[styles.tabButtonText, isActive && styles.activeTabButtonText]}>
         {label}
       </Text>
     </TouchableOpacity>
@@ -112,10 +78,7 @@ const TaskScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <LinearGradient
-        colors={['#f0f9ff', '#e0eafc']}
-        style={styles.background}
-      >
+      <LinearGradient colors={['#f0f9ff', '#e0eafc']} style={styles.background}>
         {/* 顶部导航 */}
         <View style={styles.header}>
           <Text style={styles.headerTitle}>任务中心</Text>
@@ -123,7 +86,9 @@ const TaskScreen = () => {
             <TouchableOpacity style={styles.iconButton}>
               <Icon name="filter" size={20} color="#4b5563" />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.iconButton} onPress={handleAddPress}>
+            <TouchableOpacity
+              style={styles.iconButton}
+              onPress={handleAddPress}>
               <Icon name="plus" size={20} color="#4b5563" />
             </TouchableOpacity>
           </View>
@@ -140,7 +105,7 @@ const TaskScreen = () => {
         {/* 任务列表 */}
         <ScrollView style={styles.scrollView}>
           <View style={styles.taskList}>
-            <TaskCard 
+            <TaskCard
               icon="file-text"
               iconBg="#dbeafe"
               iconColor="#0284c7"
@@ -152,7 +117,7 @@ const TaskScreen = () => {
               date="截止日期: 今天"
             />
 
-            <TaskCard 
+            <TaskCard
               icon="file-text"
               iconBg="#dbeafe"
               iconColor="#0284c7"
@@ -165,7 +130,7 @@ const TaskScreen = () => {
               progress={65}
             />
 
-            <TaskCard 
+            <TaskCard
               icon="file-check"
               iconBg="#dcfce7"
               iconColor="#16a34a"
@@ -177,7 +142,7 @@ const TaskScreen = () => {
               date="完成时间: 昨天 15:30"
             />
 
-            <TaskCard 
+            <TaskCard
               icon="file-check"
               iconBg="#dcfce7"
               iconColor="#16a34a"
@@ -254,86 +219,6 @@ const styles = StyleSheet.create({
   taskList: {
     gap: 12,
     paddingBottom: 16,
-  },
-  taskCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.25)',
-    borderRadius: 12,
-    padding: 12,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.18)',
-  },
-  taskCardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  taskCardTitleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  taskCardIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  taskCardTitle: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#1f2937',
-  },
-  taskCardSubtitle: {
-    fontSize: 12,
-    color: '#6b7280',
-  },
-  taskCardStatus: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  taskCardStatusText: {
-    fontSize: 12,
-    fontWeight: '500',
-  },
-  taskCardFooter: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  taskCardDateContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  taskCardDate: {
-    fontSize: 12,
-    color: '#6b7280',
-  },
-  progressContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  progressBar: {
-    width: 80,
-    height: 6,
-    backgroundColor: '#e5e7eb',
-    borderRadius: 3,
-    overflow: 'hidden',
-  },
-  progressFill: {
-    height: '100%',
-    backgroundColor: '#0ea5e9',
-    borderRadius: 3,
-  },
-  progressText: {
-    fontSize: 12,
-    color: '#4b5563',
-    fontWeight: '500',
   },
 });
 

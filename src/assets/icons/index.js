@@ -63,3 +63,5 @@ export const clipboardListIcon = require('./clipboard-list.png'); // 清单列�
 export const zapIcon = require('./zap.png'); // 闪电图标
 export const bellIcon = require('./bell.png'); // 铃铛图标
 export const clipboardCheckIcon = require('./clipboard-check.png'); // 检查清单图标
+export const emptyBoxIcon = require('./empty_box.png'); // 空箱子图标
+export const saveIcon = require('./save.png'); // 保存图标

@@ -3,15 +3,15 @@
  * 用于创建和配置Redux store
  */
 
-import { configureStore } from '@reduxjs/toolkit';
+import {configureStore} from '@reduxjs/toolkit';
 import rootReducer from './reducers';
-import { AuthState } from './types/auth';
+import {AuthState} from './types/auth';
 
 // 创建store实例，使用Redux Toolkit的configureStore
 const store = configureStore({
   reducer: rootReducer,
   // 配置中间件，确保默认中间件正确加载
-  middleware: (getDefaultMiddleware) =>
+  middleware: getDefaultMiddleware =>
     getDefaultMiddleware({
       serializableCheck: {
         // 忽略某些非可序列化的值，如果需要的话
@@ -23,11 +23,13 @@ const store = configureStore({
 });
 
 // 导出RootState和AppDispatch类型
-import { TaskState } from './types/task';
+import {TaskState} from './types/task';
+import {PaperState} from './types/paper';
 export type RootState = {
   auth: AuthState;
   task: TaskState;
-}
+  paper: PaperState;
+};
 export type AppDispatch = typeof store.dispatch;
 
 // 导出store实例

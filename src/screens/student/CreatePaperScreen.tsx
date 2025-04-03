@@ -3,10 +3,15 @@
  * 用于学生提交作业或试卷
  */
 
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, use} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import {RootState} from '../../store';
-import {submitPaper, clearPaperErrors} from '../../store/actions/paperActions';
+import {
+  submitPaper,
+  clearPaperErrors,
+  analyzePaper,
+  createPaperTask,
+} from '../../store/actions/paperActions';
 import {
   View,
   Text,
@@ -23,7 +28,7 @@ import {
   Alert,
 } from 'react-native';
 import {STATUS_BAR_HEIGHT} from '../../utils/devicesUtils';
-import {useNavigation, useRoute} from '@react-navigation/native';
+import {StackActions, useNavigation, useRoute} from '@react-navigation/native';
 import LinearGradient from 'react-native-linear-gradient';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 // 导入图标资源
@@ -116,9 +121,14 @@ const Icon = ({name, size = 24, color = '#000'}) => {
  * 学生端交卷屏幕组件
  */
 const CreatePaperScreen = () => {
+  const stateTaskId = useSelector(
+    (state: RootState) => state.paper.paper && state.paper.paper.id,
+  );
+
   const navigation = useNavigation();
   const route = useRoute();
-  const taskId = route.params?.taskId || '';
+  // 将 taskId 从路由参数转换为状态变量
+  const [taskId, setTaskId] = useState(route.params?.taskId || stateTaskId);
   const taskName = route.params?.taskName || '未命名任务';
 
   // 状态管理
@@ -273,19 +283,65 @@ const CreatePaperScreen = () => {
       firstImageUri: uploadedImages[0]?.uri,
     });
 
-    // 提交试卷
-    dispatch(submitPaper(submitData, uploadedImages))
-      .then(() => {
-        // 提交成功后返回上一页
-        Alert.alert('成功', '试卷已提交', [
-          {text: '确定', onPress: () => navigation.goBack()},
-        ]);
-      })
-      .catch(err => {
-        console.error('提交失败:', err);
-        setIsSubmitting(false);
-        Alert.alert('错误', '提交失败，请重试');
-      });
+    // 如果已有taskId（重新提交），则直接上传图片
+    if (route.params?.existingTaskId) {
+      const existingTaskId = route.params.existingTaskId;
+
+      dispatch(analyzePaper(submitData, uploadedImages, existingTaskId))
+        .then(result => {
+          setIsSubmitting(false);
+          // 分析成功后导航到预览页面
+          navigation.navigate('PaperReview', {
+            paperId: existingTaskId,
+            paperName: paperTitle,
+          });
+        })
+        .catch(err => {
+          console.error('图片处理失败:', err);
+          setIsSubmitting(false);
+          Alert.alert('错误', '上传失败，请重试');
+        });
+    } else {
+      // 否则先创建任务，再上传图片
+      dispatch(createPaperTask(submitData))
+        .then(result => {
+          // 获取创建的任务ID
+          const createdPaperId = result.data?.id || result.id || taskId;
+          console.log('创建的任务ID:', createdPaperId);
+
+          // 上传图片
+          dispatch(analyzePaper(uploadedImages, createdPaperId))
+            .then(() => {
+              setIsSubmitting(false);
+              // 分析成功后导航到预览页面
+              navigation.navigate('PaperReview', {
+                paperId: createdPaperId,
+                paperName: paperTitle,
+              });
+            })
+            .catch(err => {
+              console.error('图片处理失败:', err);
+              setIsSubmitting(false);
+
+              // 如果图片处理失败，返回到创建页面，但保留taskId以便重试
+              Alert.alert('错误', '图片处理失败，请重试', [
+                {
+                  text: '确定',
+                  onPress: () => {
+                    // 保留当前页面，允许用户重新提交
+                    // 将taskId保存到state中，以便重新提交时使用
+                    setTaskId(createdPaperId);
+                  },
+                },
+              ]);
+            });
+        })
+        .catch(err => {
+          console.error('创建任务失败:', err);
+          setIsSubmitting(false);
+          Alert.alert('错误', '创建任务失败，请重试');
+        });
+    }
   };
 
   // 设置项组件
@@ -506,12 +562,13 @@ const CreatePaperScreen = () => {
 
         {/* 底部工具栏 */}
         <View style={styles.footer}>
+          {/* 修改提交按钮的处理函数 */}
           <TouchableOpacity
             style={styles.submitButton}
             onPress={handleSubmitPaper}
             disabled={isSubmitting}>
             <Text style={styles.submitButtonText}>
-              {isSubmitting ? '提交中...' : '提交作业'}
+              {isSubmitting ? '上传中...' : '上传作业'}
             </Text>
           </TouchableOpacity>
         </View>
@@ -646,6 +703,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   uploadedFileItem: {
+    margin: 12,
     width: 80,
     marginRight: 12,
     position: 'relative',

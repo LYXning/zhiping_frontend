@@ -20,7 +20,7 @@ import TeacherCreateTaskScreen from '../screens/teacher/CreateTaskScreen';
 
 // 导入学生端页面组件
 import StudentHomeScreen from '../screens/student/HomeScreen';
-import StudentTaskScreen from '../screens/student/TaskScreen';
+import StudentTaskScreen from '../screens/student/PaperScreen';
 import StudentStatsScreen from '../screens/student/StatsScreen';
 
 // 导入底部导航栏组件
