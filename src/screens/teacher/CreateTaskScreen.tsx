@@ -30,7 +30,6 @@ import LinearGradient from 'react-native-linear-gradient';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 import {Alert} from 'react-native';
-import CameraScreen from '../camera/CameraScreen';
 // 导入图标资源
 import {
   fileIcon,
@@ -284,6 +283,43 @@ const CreateTaskScreen = () => {
 
   // 添加相机状态
   const [cameraVisible, setCameraVisible] = useState(false);
+
+  // 处理从ExamContentScreen传递过来的数据
+  useEffect(() => {
+    if (route.params) {
+      const {
+        examStructure: routeExamStructure,
+        aiSuggestions: routeAiSuggestions,
+        images: routeImages,
+        taskName: routeTaskName,
+        selectedSubject: routeSelectedSubject,
+        fromExamContent,
+      } = route.params;
+
+      // 如果是从ExamContentScreen返回，加载传递的数据
+      if (fromExamContent) {
+        if (routeExamStructure) {
+          setExamStructure(routeExamStructure);
+        }
+
+        if (routeAiSuggestions) {
+          setAiSuggestions(routeAiSuggestions);
+        }
+
+        if (routeImages) {
+          setUploadedImages(routeImages);
+        }
+
+        if (routeTaskName) {
+          setTaskName(routeTaskName);
+        }
+
+        if (routeSelectedSubject) {
+          setSelectedSubject(routeSelectedSubject);
+        }
+      }
+    }
+  }, [route.params]);
 
   // 处理日期选择
   const handleDateChange = (event, selectedDate) => {

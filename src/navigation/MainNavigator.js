@@ -25,7 +25,7 @@ import StudentStatsScreen from '../screens/student/StatsScreen';
 
 // 导入底部导航栏组件
 import BottomTabBar from '../components/common/BottomTabBar';
-import {Text} from 'react-native-gesture-handler';
+import WeaknessAnalysisScreen from '../screens/student/WeaknessAnalysisScreen';
 
 // 创建导航器
 const Stack = createStackNavigator();
@@ -56,8 +56,8 @@ const TabNavigator = () => {
       user.role === 'TEACHER' ? TeacherHomeScreen : StudentHomeScreen;
     const TaskScreen =
       user.role === 'TEACHER' ? TeacherTaskScreen : StudentTaskScreen;
-    const StatsScreen =
-      user.role === 'TEACHER' ? TeacherStatsScreen : StudentStatsScreen;
+    const StatsScreen = WeaknessAnalysisScreen;
+    // user.role === 'TEACHER' ? TeacherStatsScreen : StudentStatsScreen;
 
     switch (activeTab) {
       case 'Main':

@@ -1,84 +1,84 @@
 // 分析卡片组件
 
 import React from 'react';
-import {View, Text, Image, StyleSheet} from 'react-native';
+import {View, Text, Image, StyleSheet, TouchableOpacity} from 'react-native';
 import {chartIcon, homeIcon} from '../../assets/icons';
-
-// 图标组件
-const Icon = ({name, size = 24, color = '#000'}) => {
-  // 根据图标名称返回对应的图标组件
-  const getIconSource = iconName => {
-    switch (iconName) {
-      case 'chart':
-        return chartIcon;
-      default:
-        return homeIcon;
-    }
-  };
-  return (
-    <Image
-      source={getIconSource(name)}
-      style={{width: size, height: size, tintColor: color}}
-    />
-  );
-};
+import Icon from '../common/Icon';
+import {SUBJECT_COLORS} from './TaskCard';
 
 export const AnalysisCard = ({
   title,
   subtitle,
   averageScore,
-  maxScore,
-  minScore,
-  passRate,
+  fullScore,
+  correctRate,
+  correctNumber,
+  wrongNumber,
   excellentRate,
+  subject,
+  onPress,
 }) => (
   <View style={styles.analysisCard}>
-    {/* 卡片头部 */}
-    <View style={styles.analysisCardHeaderNew}>
-      <View style={styles.analysisCardIcon}>
-        <Icon name="bar-chart-2" size={24} color="#0284c7" />
-      </View>
-      <View>
-        <Text style={styles.analysisCardTitle}>{title}</Text>
-        <Text style={styles.analysisCardSubtitle}>{subtitle}</Text>
-      </View>
-    </View>
-
-    {/* 平均分进度条 */}
-    <View style={styles.analysisCardProgressContainer}>
-      <View style={styles.analysisCardProgressHeader}>
-        <Text style={styles.analysisCardProgressLabel}>班级平均分</Text>
-        <Text style={styles.analysisCardProgressValue}>{averageScore}</Text>
-      </View>
-      <View style={styles.analysisCardProgressBar}>
+    <TouchableOpacity onPress={onPress}>
+      {/* 卡片头部 */}
+      <View style={styles.analysisCardHeaderNew}>
         <View
           style={[
-            styles.analysisCardProgressFill,
-            {width: `${Math.min(averageScore, 100)}%`},
-          ]}
-        />
+            styles.analysisCardIcon,
+            {backgroundColor: SUBJECT_COLORS[subject] || '#dbeafe'},
+          ]}>
+          <Icon name={subject} size={24} />
+        </View>
+        <View>
+          <Text style={styles.analysisCardTitle}>{title}</Text>
+          {/* <Text style={styles.analysisCardSubtitle}>{subtitle}</Text> */}
+        </View>
       </View>
-    </View>
 
-    {/* 统计数据 */}
-    <View style={styles.analysisCardStats}>
-      <View style={styles.analysisCardStatItem}>
-        <Text style={styles.analysisCardStatValue}>{maxScore}</Text>
-        <Text style={styles.analysisCardStatLabel}>最高分</Text>
+      {/* 平均分进度条 */}
+      <View style={styles.analysisCardProgressContainer}>
+        <View style={styles.analysisCardProgressHeader}>
+          <Text style={styles.analysisCardProgressLabel}>得分</Text>
+          <Text style={styles.analysisCardProgressValue}>{averageScore}</Text>
+        </View>
+        <View style={styles.analysisCardProgressBar}>
+          <View
+            style={[
+              styles.analysisCardProgressFill,
+              {width: `${Math.min((averageScore / fullScore) * 100, 100)}%`},
+            ]}
+          />
+        </View>
       </View>
-      <View style={styles.analysisCardStatItem}>
-        <Text style={styles.analysisCardStatValue}>{minScore}</Text>
-        <Text style={styles.analysisCardStatLabel}>最低分</Text>
-      </View>
-      <View style={styles.analysisCardStatItem}>
-        <Text style={styles.analysisCardStatValue}>{passRate}</Text>
-        <Text style={styles.analysisCardStatLabel}>及格率</Text>
-      </View>
-      <View style={styles.analysisCardStatItem}>
+
+      {/* 统计数据 */}
+      <View style={styles.analysisCardStats}>
+        <View style={styles.analysisCardStatItem}>
+          <Text style={styles.analysisCardStatValue}>{correctRate}%</Text>
+          <Text style={styles.analysisCardStatLabel}>正确率</Text>
+        </View>
+        <View style={styles.analysisCardStatItem}>
+          <Text style={[styles.analysisCardStatValue, styles.correctNumber]}>
+            {correctNumber}
+          </Text>
+          <Text style={[styles.analysisCardStatLabel, styles.correctNumber]}>
+            答对题目
+          </Text>
+        </View>
+        <View style={styles.analysisCardStatItem}>
+          <Text style={[styles.analysisCardStatValue, styles.wrongNumber]}>
+            {wrongNumber}
+          </Text>
+          <Text style={[styles.analysisCardStatLabel, styles.wrongNumber]}>
+            错误题目
+          </Text>
+        </View>
+        {/* <View style={styles.analysisCardStatItem}>
         <Text style={styles.analysisCardStatValue}>{excellentRate}</Text>
         <Text style={styles.analysisCardStatLabel}>优秀率</Text>
+      </View> */}
       </View>
-    </View>
+    </TouchableOpacity>
   </View>
 );
 
@@ -152,8 +152,10 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
   analysisCardStats: {
+    flex: 1,
     flexDirection: 'row',
     justifyContent: 'space-between',
+    marginHorizontal: 12,
   },
   analysisCardStatItem: {
     alignItems: 'center',
@@ -166,5 +168,11 @@ const styles = StyleSheet.create({
   analysisCardStatLabel: {
     fontSize: 12,
     color: '#6b7280',
+  },
+  correctNumber: {
+    color: '#008000',
+  },
+  wrongNumber: {
+    color: '#ff1a1c',
   },
 });

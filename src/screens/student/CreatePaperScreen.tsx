@@ -3,11 +3,10 @@
  * 用于学生提交作业或试卷
  */
 
-import React, {useState, useEffect, use} from 'react';
+import React, {useState, useEffect} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import {RootState} from '../../store';
 import {
-  submitPaper,
   clearPaperErrors,
   analyzePaper,
   createPaperTask,
@@ -25,31 +24,20 @@ import {
   PermissionsAndroid,
   Platform,
   LogBox,
-  Alert,
 } from 'react-native';
-import {STATUS_BAR_HEIGHT} from '../../utils/devicesUtils';
-import {StackActions, useNavigation, useRoute} from '@react-navigation/native';
+import {showSuccess, showError, showInfo} from '../../utils/toastUtils';
+import {
+  BOTTOM_SAFE_AREA_HEIGHT,
+  STATUS_BAR_HEIGHT,
+} from '../../utils/devicesUtils';
+import {useNavigation, useRoute} from '@react-navigation/native';
 import LinearGradient from 'react-native-linear-gradient';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
-// 导入图标资源
 import {
-  fileIcon,
-  bookIcon,
-  plusIcon,
-  homeIcon,
-  cameraIcon,
-  uploadIcon,
-  rightIcon,
-  sparklesIcon,
-  helpCircleIcon,
-  leftIcon,
-} from '../../assets/icons';
-import {subjectsArray} from '../../utils/subjectUtils';
-
-// 忽略 CameraView 事件命名约定警告
-LogBox.ignoreLogs([
-  "Direct event name for 'CameraView' doesn't correspond to the naming convention",
-]);
+  getChinsesNameByEnglishName,
+  subjectsArray,
+} from '../../utils/subjectUtils';
+import Icon from '../../components/common/Icon';
 
 const requestCameraPermission = async () => {
   if (Platform.OS === 'android') {
@@ -69,7 +57,7 @@ const requestCameraPermission = async () => {
         return true;
       } else {
         console.log('相机权限被拒绝');
-        Alert.alert('权限被拒绝', '无法使用相机功能，请在设置中开启相机权限');
+        showError('权限被拒绝', '无法使用相机功能，请在设置中开启相机权限');
         return false;
       }
     } catch (err) {
@@ -80,60 +68,23 @@ const requestCameraPermission = async () => {
   return true;
 };
 
-// 图标组件
-const Icon = ({name, size = 24, color = '#000'}) => {
-  // 根据图标名称返回对应的图标组件
-  const getIconSource = iconName => {
-    switch (iconName) {
-      case 'arrow-left':
-        return leftIcon;
-      case 'help-circle':
-        return helpCircleIcon;
-      case 'file-text':
-        return fileIcon;
-      case 'book-open':
-        return bookIcon;
-      case 'upload-cloud':
-        return uploadIcon;
-      case 'chevron-right':
-        return rightIcon;
-      case 'plus':
-        return plusIcon;
-      case 'sparkles':
-        return sparklesIcon;
-      case 'camera':
-        return cameraIcon;
-      case 'file':
-        return fileIcon;
-      default:
-        return homeIcon;
-    }
-  };
-  return (
-    <Image
-      source={getIconSource(name)}
-      style={{width: size, height: size, tintColor: color}}
-    />
-  );
-};
-
 /**
  * 学生端交卷屏幕组件
  */
 const CreatePaperScreen = () => {
-  const stateTaskId = useSelector(
-    (state: RootState) => state.paper.paper && state.paper.paper.id,
-  );
-
   const navigation = useNavigation();
   const route = useRoute();
   // 将 taskId 从路由参数转换为状态变量
-  const [taskId, setTaskId] = useState(route.params?.taskId || stateTaskId);
-  const taskName = route.params?.taskName || '未命名任务';
+  const [taskId, setTaskId] = useState(route.params?.paperId);
+  const taskName = route.params?.paperName;
 
   // 状态管理
   const [paperTitle, setPaperTitle] = useState(taskName || '');
-  const [subject, setSubject] = useState('政治');
+  const [subject, setSubject] = useState(
+    (route.params?.paperSubject &&
+      getChinsesNameByEnglishName(route.params?.paperSubject)) ||
+      '语文',
+  );
   const [uploadedImages, setUploadedImages] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [previewVisible, setPreviewVisible] = useState(false);
@@ -144,6 +95,9 @@ const CreatePaperScreen = () => {
 
   // 科目列表
   const subjects = subjectsArray;
+
+  console.log('TaskId:', taskId);
+  console.log('route.params:', route.params);
 
   // 处理科目选择
   const handleSubjectSelect = selectedSubject => {
@@ -196,7 +150,7 @@ const CreatePaperScreen = () => {
         console.log('用户取消了拍照');
       } else if (response.errorCode) {
         console.log('相机错误: ', response.errorMessage);
-        Alert.alert('错误', '拍照出错: ' + response.errorMessage);
+        showError('错误', '拍照出错: ' + response.errorMessage);
       } else {
         // 处理拍照成功的情况
         if (response.assets && response.assets.length > 0) {
@@ -204,7 +158,7 @@ const CreatePaperScreen = () => {
           setUploadedImages(newImages);
 
           // 这里可以添加上传到服务器的逻辑
-          Alert.alert('成功', '照片已拍摄，准备上传');
+          showSuccess('成功', '照片已拍摄，准备上传');
         }
       }
     });
@@ -224,7 +178,7 @@ const CreatePaperScreen = () => {
         console.log('用户取消了选择');
       } else if (response.errorCode) {
         console.log('ImagePicker Error: ', response.errorMessage);
-        Alert.alert('错误', '选择文件出错: ' + response.errorMessage);
+        showError('错误', '选择文件出错: ' + response.errorMessage);
       } else {
         // 处理选择成功的情况
         if (response.assets && response.assets.length > 0) {
@@ -232,7 +186,7 @@ const CreatePaperScreen = () => {
           setUploadedImages(newImages);
 
           // 这里可以添加上传到服务器的逻辑
-          Alert.alert(
+          showSuccess(
             '成功',
             `已选择${response.assets.length}个文件，准备上传`,
           );
@@ -256,12 +210,12 @@ const CreatePaperScreen = () => {
   const handleSubmitPaper = () => {
     // 验证必填字段
     if (uploadedImages.length === 0) {
-      Alert.alert('提示', '请上传至少一张试卷图片');
+      showInfo('提示', '请上传至少一张试卷图片');
       return;
     }
 
     if (!paperTitle.trim()) {
-      Alert.alert('提示', '请填写作业标题');
+      showInfo('提示', '请填写作业标题');
       return;
     }
 
@@ -277,29 +231,25 @@ const CreatePaperScreen = () => {
       notification: notificationEnabled,
     };
 
-    console.log('准备提交:', {
-      submitData,
-      imageCount: uploadedImages.length,
-      firstImageUri: uploadedImages[0]?.uri,
-    });
-
     // 如果已有taskId（重新提交），则直接上传图片
-    if (route.params?.existingTaskId) {
-      const existingTaskId = route.params.existingTaskId;
-
-      dispatch(analyzePaper(submitData, uploadedImages, existingTaskId))
+    if (taskId) {
+      navigation.reset({
+        index: 0,
+        routes: [
+          {
+            name: 'PaperReview',
+            params: {paperId: taskId, paperName: paperTitle},
+          },
+        ],
+      });
+      dispatch(analyzePaper(uploadedImages, taskId))
         .then(result => {
           setIsSubmitting(false);
-          // 分析成功后导航到预览页面
-          navigation.navigate('PaperReview', {
-            paperId: existingTaskId,
-            paperName: paperTitle,
-          });
         })
         .catch(err => {
           console.error('图片处理失败:', err);
           setIsSubmitting(false);
-          Alert.alert('错误', '上传失败，请重试');
+          showError('错误', '上传失败，请重试');
         });
     } else {
       // 否则先创建任务，再上传图片
@@ -308,38 +258,38 @@ const CreatePaperScreen = () => {
           // 获取创建的任务ID
           const createdPaperId = result.data?.id || result.id || taskId;
           console.log('创建的任务ID:', createdPaperId);
+          setTaskId(createdPaperId);
 
           // 上传图片
           dispatch(analyzePaper(uploadedImages, createdPaperId))
             .then(() => {
               setIsSubmitting(false);
-              // 分析成功后导航到预览页面
-              navigation.navigate('PaperReview', {
-                paperId: createdPaperId,
-                paperName: paperTitle,
-              });
             })
             .catch(err => {
               console.error('图片处理失败:', err);
               setIsSubmitting(false);
 
               // 如果图片处理失败，返回到创建页面，但保留taskId以便重试
-              Alert.alert('错误', '图片处理失败，请重试', [
-                {
-                  text: '确定',
-                  onPress: () => {
-                    // 保留当前页面，允许用户重新提交
-                    // 将taskId保存到state中，以便重新提交时使用
-                    setTaskId(createdPaperId);
-                  },
-                },
-              ]);
+              showError('错误', '图片处理失败，请重试');
+              // 保留当前页面，允许用户重新提交
+              // 将taskId保存到state中，以便重新提交时使用
+              setTaskId(createdPaperId);
             });
+          // 分析成功后导航到预览页面
+          navigation.reset({
+            index: 0,
+            routes: [
+              {
+                name: 'PaperReview',
+                params: {paperId: createdPaperId, paperName: paperTitle},
+              },
+            ],
+          });
         })
         .catch(err => {
           console.error('创建任务失败:', err);
           setIsSubmitting(false);
-          Alert.alert('错误', '创建任务失败，请重试');
+          showError('错误', '创建任务失败，请重试');
         });
     }
   };
@@ -439,6 +389,7 @@ const CreatePaperScreen = () => {
               <TextInput
                 style={styles.textInput}
                 placeholder="请输入作业标题"
+                placeholderTextColor="#999"
                 value={paperTitle}
                 onChangeText={setPaperTitle}
               />
@@ -538,7 +489,7 @@ const CreatePaperScreen = () => {
           </View>
 
           {/* 提交设置 */}
-          <View style={styles.section}>
+          {/* <View style={styles.section}>
             <Text style={styles.sectionTitle}>提交设置</Text>
 
             <View style={styles.settingsContainer}>
@@ -554,7 +505,7 @@ const CreatePaperScreen = () => {
                 onChange={setNotificationEnabled}
               />
             </View>
-          </View>
+          </View> */}
 
           {/* 底部间距 */}
           <View style={styles.bottomSpacer} />
@@ -807,12 +758,13 @@ const styles = StyleSheet.create({
     borderTopColor: '#e5e7eb',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    paddingBottom: Platform.OS === 'ios' ? 24 : 12,
+    paddingBottom: BOTTOM_SAFE_AREA_HEIGHT,
   },
   submitButton: {
     backgroundColor: '#0284c7',
     borderRadius: 8,
     paddingVertical: 12,
+    marginHorizontal: 12,
     alignItems: 'center',
   },
   submitButtonText: {

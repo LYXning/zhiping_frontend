@@ -1,7 +1,6 @@
 import React from 'react';
 import {createStackNavigator} from '@react-navigation/stack';
 import CreateTaskScreen from '../screens/teacher/CreateTaskScreen';
-import ExamContentScreen from '../screens/teacher/ExamContentScreen';
 
 // 定义任务导航参数类型
 export type TaskStackParamList = {

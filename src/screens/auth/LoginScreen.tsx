@@ -77,10 +77,13 @@ const LoginScreen = () => {
         // 如果没有选择"记住我"，清除之前保存的信息
         clearSavedCredentials();
       }
-      navigation.navigate('Main');
+      navigation.reset({
+        index: 0,
+        routes: [{name: 'Main'}],
+      });
     }
   }, [isAuthenticated, navigation, rememberMe, username, password, loginType]);
-  
+
   /**
    * 处理登录类型切换
    * @param {string} type - 登录类型 'password' 或 'sms'
@@ -103,7 +106,7 @@ const LoginScreen = () => {
           type: 'info',
           text1: '登录失败',
           text2: '用户名或手机号不能为空',
-          position: 'top',
+          position: 'bottom',
           visibilityTime: 2000,
           autoHide: true,
         });
@@ -114,7 +117,7 @@ const LoginScreen = () => {
           type: 'info',
           text1: '登录失败',
           text2: '请输入密码',
-          position: 'top',
+          position: 'bottom',
           visibilityTime: 2000,
           autoHide: true,
         });
@@ -137,7 +140,7 @@ const LoginScreen = () => {
           type: 'info',
           text1: '登录失败',
           text2: '请输入正确的手机号',
-          position: 'top',
+          position: 'bottom',
           visibilityTime: 2000,
           autoHide: true,
         });
@@ -149,7 +152,7 @@ const LoginScreen = () => {
           type: 'info',
           text1: '登录失败',
           text2: '请输入验证码',
-          position: 'top',
+          position: 'bottom',
           visibilityTime: 2000,
           autoHide: true,
         });
@@ -170,7 +173,7 @@ const LoginScreen = () => {
         type: 'info',
         text1: '发送验证码失败',
         text2: '请输入正确的手机号',
-        position: 'top',
+        position: 'bottom',
         visibilityTime: 2000,
         autoHide: true,
       });
@@ -214,7 +217,7 @@ const LoginScreen = () => {
           setRememberMe(true);
         }
       } catch (err) {
-        console.error('读取保存的登录信息失败:', err);
+        // console.error('读取保存的登录信息失败:', err);
       }
     };
 
@@ -224,13 +227,19 @@ const LoginScreen = () => {
   /**
    * 保存登录凭证
    */
-  const saveCredentials = async (savedUsername: string, savedPassword: string) => {
+  const saveCredentials = async (
+    savedUsername: string,
+    savedPassword: string,
+  ) => {
     try {
-      const credentials = JSON.stringify({username: savedUsername, password: savedPassword});
+      const credentials = JSON.stringify({
+        username: savedUsername,
+        password: savedPassword,
+      });
       await AsyncStorage.setItem('userCredentials', credentials);
-      console.log('登录信息已保存');
+      // console.log('登录信息已保存');
     } catch (err) {
-      console.error('保存登录信息失败:', err);
+      // console.error('保存登录信息失败:', err);
     }
   };
 
@@ -240,9 +249,9 @@ const LoginScreen = () => {
   const clearSavedCredentials = async () => {
     try {
       await AsyncStorage.removeItem('userCredentials');
-      console.log('保存的登录信息已清除');
+      // console.log('保存的登录信息已清除');
     } catch (err) {
-      console.error('清除登录信息失败:', err);
+      // console.error('清除登录信息失败:', err);
     }
   };
 
@@ -254,7 +263,7 @@ const LoginScreen = () => {
         type: 'error',
         text1: '登录失败',
         text2: error,
-        position: 'top',
+        position: 'bottom',
         visibilityTime: 2000,
         autoHide: true,
       });
@@ -267,7 +276,7 @@ const LoginScreen = () => {
         type: 'error',
         text1: '发送验证码失败',
         text2: smsError,
-        position: 'top',
+        position: 'bottom',
         visibilityTime: 2000,
         autoHide: true,
       });
@@ -346,6 +355,7 @@ const LoginScreen = () => {
                   <TextInput
                     style={styles.input}
                     placeholder="用户名/手机号"
+                    placeholderTextColor="#999"
                     value={username}
                     onChangeText={setUsername}
                     autoCapitalize="none"
@@ -360,6 +370,7 @@ const LoginScreen = () => {
                   <TextInput
                     style={styles.input}
                     placeholder="密码"
+                    placeholderTextColor="#999"
                     value={password}
                     onChangeText={setPassword}
                     secureTextEntry
@@ -398,6 +409,7 @@ const LoginScreen = () => {
                   <TextInput
                     style={styles.input}
                     placeholder="手机号"
+                    placeholderTextColor="#999"
                     value={phone}
                     onChangeText={setPhone}
                     keyboardType="phone-pad"
@@ -414,6 +426,7 @@ const LoginScreen = () => {
                     <TextInput
                       style={styles.input}
                       placeholder="验证码"
+                      placeholderTextColor="#999"
                       value={smsCode}
                       onChangeText={setSmsCode}
                       keyboardType="number-pad"
@@ -535,11 +548,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 4},
-    shadowOpacity: 0.2,
-    shadowRadius: 5,
-    elevation: 5,
+    // elevation: 5,
     marginBottom: 16,
   },
   logoText: {
@@ -561,11 +570,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderRadius: 20,
     padding: 20,
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 4},
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    elevation: 5,
+    // elevation: 5,
     marginBottom: 20,
   },
   welcomeContainer: {

@@ -1,53 +1,19 @@
 import React from 'react';
-import {View, Text, Image, StyleSheet, TouchableOpacity} from 'react-native';
-import {
-  checkCircleIcon,
-  clockIcon,
-  fileIcon,
-  filterIcon,
-  homeIcon,
-  plusIcon,
-} from '../../assets/icons';
+import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
+import Icon from '../common/Icon';
 
-const Icon = ({name, size = 24, color = '#000'}) => {
-  // 根据图标名称返回对应的图标组件
-  const getIconSource = iconName => {
-    switch (iconName) {
-      case 'filter':
-        return filterIcon;
-      case 'plus':
-        return plusIcon;
-      case 'file-text':
-        return fileIcon; // 临时替代
-      case 'file-check':
-        return checkCircleIcon; // 临时替代
-      case 'clock':
-        return clockIcon;
-      default:
-        return homeIcon;
-    }
-  };
-
-  return (
-    <Image
-      source={getIconSource(name)}
-      style={{width: size, height: size, tintColor: color}}
-    />
-  );
-};
-
-const SUBJECT_COLORS = {
-  数学: '#e3f2fd',
-  语文: '#f1f8e9',
-  英语: '#fff8e1',
-  物理: '#f3e5f5',
-  化学: '#e8f5e9',
-  生物: '#e0f7fa',
-  历史: '#fff3e0',
-  地理: '#e8eaf6',
-  政治: '#fce4ec',
-  默认: '#f5f5f5',
+export const SUBJECT_COLORS = {
+  math: '#e3f2fd',
+  chinese: '#f1f8e9',
+  english: '#fff8e1',
+  physics: '#fff3e0',
+  chemistry: '#e8f5e9',
+  biology: '#e0f7fa',
+  history: '#f3e5f5',
+  geography: '#e8eaf6',
+  politics: '#fce4ec',
+  default: '#f5f5f5',
 };
 
 const STATUS_COLORS: Record<number, {bg: string; text: string}> = {
@@ -87,7 +53,7 @@ const BUTTON_STYLES: Record<number, {bg: string; text: string; label: string}> =
     1: {
       bg: '#1976d2',
       text: '#ffffff',
-      label: '开始考试',
+      label: '提交试卷',
     },
     2: {
       bg: '#4b5563',
@@ -97,7 +63,7 @@ const BUTTON_STYLES: Record<number, {bg: string; text: string; label: string}> =
     3: {
       bg: '#0ea5e9',
       text: '#ffffff',
-      label: '开始批改',
+      label: '提交批改',
     },
     4: {
       bg: '#10b981', // 修改为绿色系
@@ -121,13 +87,21 @@ interface taskProps {
   subtitle: string;
   status: number;
   deadline: string;
-  showActionButton: boolean;
+  showActionButton?: boolean;
 }
 
-export const TaskCard = (props: taskProps) => {
+export const TaskCard = ({
+  icon,
+  iconBg,
+  iconColor,
+  id,
+  title,
+  subtitle,
+  status,
+  deadline,
+}) => {
+  console.log('TaskCard rendered ' + icon);
   const navigation = useNavigation();
-  const {icon, iconBg, iconColor} = props;
-  const {id, title, subtitle, status, deadline, showActionButton} = props;
 
   const statusText = STATE_TEXT[status];
   const statusBg = STATUS_COLORS[status].bg;
@@ -136,8 +110,20 @@ export const TaskCard = (props: taskProps) => {
   // 获取按钮样式
   const buttonStyle = BUTTON_STYLES[status] || BUTTON_STYLES[3];
 
+  const showActionButton =
+    status === 1 || status === 3 || status === 4 || status === 5;
   const handlePress = () => {
     switch (status) {
+      case 1:
+        navigation.navigate('Student', {
+          screen: 'CreatePaper',
+          params: {
+            paperId: id,
+            paperName: title,
+            paperSubject: icon,
+          },
+        });
+        break;
       case 3:
         navigation.navigate('Student', {
           screen: 'PaperReview',
@@ -148,6 +134,7 @@ export const TaskCard = (props: taskProps) => {
         });
         break;
       case 4:
+      case 5:
         navigation.navigate('Student', {
           screen: 'PaperReport',
           params: {
@@ -163,12 +150,16 @@ export const TaskCard = (props: taskProps) => {
     <View style={styles.taskCard}>
       <View style={styles.taskCardHeader}>
         <View style={styles.taskCardTitleContainer}>
-          <View style={[styles.taskCardIcon, {backgroundColor: iconBg}]}>
-            <Icon name={icon} size={20} color={iconColor} />
+          <View
+            style={[
+              styles.taskCardIcon,
+              {backgroundColor: SUBJECT_COLORS[icon] || '#f5f5f5'},
+            ]}>
+            <Icon name={icon} size={26} />
           </View>
           <View>
             <Text style={styles.taskCardTitle}>{title}</Text>
-            <Text style={styles.taskCardSubtitle}>{subtitle}</Text>
+            {/* <Text style={styles.taskCardSubtitle}>{subtitle}</Text> */}
           </View>
         </View>
         <View style={[styles.taskCardStatus, {backgroundColor: statusBg}]}>
@@ -221,7 +212,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   taskCardTitle: {
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: '500',
     color: '#1f2937',
   },

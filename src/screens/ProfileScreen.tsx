@@ -1,5 +1,5 @@
 /**
- * 教师端个人中心组件
+ * 个人中心组件
  * 显示教师的个人信息和设置界面
  */
 
@@ -18,46 +18,8 @@ import {useDispatch, useSelector} from 'react-redux';
 import {logout} from '../store/actions/authActions';
 import {AppDispatch, RootState} from '../store';
 
-// 导入图标资源
-import {
-  settingsIcon,
-  userIcon,
-  idCardIcon,
-  buildingIcon,
-  messageSquareIcon,
-  lockIcon,
-  homeIcon,
-} from '../assets/icons';
 import {STATUS_BAR_HEIGHT} from '../utils/devicesUtils';
-
-// 图标组件
-const Icon = ({name, size = 24, color = '#000'}) => {
-  // 根据图标名称返回对应的图标组件
-  const getIconSource = iconName => {
-    switch (iconName) {
-      case 'settings':
-        return settingsIcon;
-      case 'user':
-        return userIcon;
-      case 'id-card':
-        return idCardIcon;
-      case 'building':
-        return buildingIcon;
-      case 'message-square':
-        return messageSquareIcon;
-      case 'lock':
-        return lockIcon;
-      default:
-        return homeIcon;
-    }
-  };
-  return (
-    <Image
-      source={getIconSource(name)}
-      style={{width: size, height: size, tintColor: color}}
-    />
-  );
-};
+import Icon from '../components/common/Icon';
 
 // 菜单项组件
 const MenuItem = ({icon, iconColor, title, subtitle, onPress}) => (
@@ -148,7 +110,7 @@ const ProfileScreen = () => {
               <MenuItem
                 icon="id-card"
                 iconColor="#8b5cf6"
-                title="教师认证"
+                title="实名认证"
                 subtitle="已认证"
                 onPress={() => console.log('教师认证')}
               />
@@ -157,7 +119,7 @@ const ProfileScreen = () => {
                 icon="building"
                 iconColor="#f59e0b"
                 title="所属学校"
-                subtitle="第一中学"
+                subtitle={user.school}
                 onPress={() => console.log('所属学校')}
               />
             </View>

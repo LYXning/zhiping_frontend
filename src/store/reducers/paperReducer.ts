@@ -13,10 +13,27 @@ const initialState: PaperState = {
   teacherTasksError: null,
   paperStatusLoading: false,
   paperStatusError: null,
+  // 添加最近试卷相关的状态初始值
+  recentPapers: [],
+  recentPapersLoading: false,
+  recentPapersError: null,
   // 添加新的状态初始值
   updateAnswersLoading: false,
   updateAnswersSuccess: false,
   updateAnswersError: null,
+  // 添加获取所有评分结果相关的状态初始值
+  allGradingResults: [],
+  allGradingResultsLoading: false,
+  allGradingResultsError: null,
+  // 添加批改试卷相关的状态
+  gradePaperLoading: true,
+  gradePaperSuccess: false,
+  gradePaperError: null,
+  // 添加获取批改结果相关的状态
+  gradingResultLoading: true,
+  gradingResultSuccess: false,
+  gradingResultError: null,
+  gradingResult: null,
 };
 
 export const paperReducer = (state = initialState, action) => {
@@ -60,7 +77,8 @@ export const paperReducer = (state = initialState, action) => {
       return {
         ...state,
         loading: false,
-        error: action.payload,
+        success: false,
+        error: action.payload.err,
       };
 
     // 清除错误
@@ -130,6 +148,96 @@ export const paperReducer = (state = initialState, action) => {
         ...state,
         loading: false,
         error: action.payload,
+      };
+
+    // 处理获取最近试卷的 action
+    case PaperActionTypes.FETCH_RECENT_PAPERS_REQUEST:
+      return {
+        ...state,
+        recentPapersLoading: true,
+        recentPapersError: null,
+      };
+    case PaperActionTypes.FETCH_RECENT_PAPERS_SUCCESS:
+      return {
+        ...state,
+        recentPapersLoading: false,
+        recentPapers: action.payload,
+      };
+    case PaperActionTypes.FETCH_RECENT_PAPERS_FAIL:
+      return {
+        ...state,
+        recentPapersLoading: false,
+        recentPapersError: action.payload,
+      };
+
+    // 添加获取所有评分结果相关的状态处理
+    case PaperActionTypes.GET_ALL_GRADING_RESULTS_REQUEST:
+      return {
+        ...state,
+        allGradingResultsLoading: true,
+        allGradingResultsError: null,
+      };
+    case PaperActionTypes.GET_ALL_GRADING_RESULTS_SUCCESS:
+      return {
+        ...state,
+        allGradingResultsLoading: false,
+        allGradingResults: action.payload,
+      };
+    case PaperActionTypes.GET_ALL_GRADING_RESULTS_FAIL:
+      return {
+        ...state,
+        allGradingResultsLoading: false,
+        allGradingResultsError: action.payload,
+      };
+
+    // 添加批改试卷相关的状态处理
+    case PaperActionTypes.GRADE_PAPER_REQUEST:
+      return {
+        ...state,
+        gradePaperLoading: true,
+        gradePaperSuccess: false,
+        gradePaperError: null,
+      };
+    case PaperActionTypes.GRADE_PAPER_SUCCESS:
+      return {
+        ...state,
+        gradePaperLoading: false,
+        gradePaperSuccess: true,
+        paper: action.payload,
+      };
+    case PaperActionTypes.GRADE_PAPER_FAIL:
+      return {
+        ...state,
+        gradePaperLoading: false,
+        gradePaperSuccess: false,
+        gradePaperError: action.payload,
+      };
+
+    // 添加获取批改结果相关的状态处理
+    case PaperActionTypes.GET_GRADING_RESULT_REQUEST:
+      return {
+        ...state,
+        gradingResultLoading: true,
+        gradingResultSuccess: false,
+        gradingResultError: null,
+        // 不要在请求开始时清空现有数据
+        // gradingResult: null,
+      };
+    case PaperActionTypes.GET_GRADING_RESULT_SUCCESS:
+      return {
+        ...state,
+        gradingResultLoading: false,
+        gradingResultSuccess: true,
+        gradingResult: action.payload,
+      };
+    case PaperActionTypes.GET_GRADING_RESULT_FAIL:
+      return {
+        ...state,
+        gradingResultLoading: false,
+        gradingResultSuccess: false,
+        gradingResultError: action.payload,
+        // 保留之前的数据，不要在失败时清空
+        // gradingResult: null,
       };
 
     // 默认返回当前状态

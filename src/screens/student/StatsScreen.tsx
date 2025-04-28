@@ -3,7 +3,7 @@
  * 显示教师的数据统计和分析界面，包括班级数据、成绩分布等
  */
 
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import {
   View,
   Text,
@@ -14,49 +14,12 @@ import {
   Image,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-
-// 导入图标资源
-import {
-  calendarIcon,
-  downloadIcon,
-  chartIcon,
-  trendingUpIcon,
-  userIcon,
-  homeIcon
-} from '../../assets/icons';
-import { STATUS_BAR_HEIGHT } from '../../utils/devicesUtils';
-
-// 图标组件
-const Icon = ({ name, size = 24, color = '#000' }) => {
-  // 根据图标名称返回对应的图标组件
-  const getIconSource = (iconName) => {
-    switch (iconName) {
-      case 'calendar':
-        return calendarIcon;
-      case 'download':
-        return downloadIcon;
-      case 'bar-chart-2':
-        return chartIcon;
-      case 'trending-up':
-        return trendingUpIcon;
-      case 'users':
-        return userIcon; // 临时替代
-      default:
-        return homeIcon;
-    }
-  }
-
-  return (
-    <Image
-      source={getIconSource(name)}
-      style={{ width: size, height: size, tintColor: color }}
-    />
-  );
-};
+import {STATUS_BAR_HEIGHT} from '../../utils/devicesUtils';
+import Icon from '../../components/common/Icon';
 
 // 统计卡片组件
-const StatCard = ({ title, value, change, changeType, bgColor }) => (
-  <View style={[styles.statCard, { backgroundColor: bgColor }]}>
+const StatCard = ({title, value, change, changeType, bgColor}) => (
+  <View style={[styles.statCard, {backgroundColor: bgColor}]}>
     <Text style={styles.statCardTitle}>{title}</Text>
     <Text style={styles.statCardValue}>{value}</Text>
     {change && (
@@ -67,9 +30,10 @@ const StatCard = ({ title, value, change, changeType, bgColor }) => (
           color={changeType === 'up' ? '#10b981' : '#ef4444'}
         />
         <Text
-          style={[styles.statCardChangeText,
-          { color: changeType === 'up' ? '#10b981' : '#ef4444' }]}
-        >
+          style={[
+            styles.statCardChangeText,
+            {color: changeType === 'up' ? '#10b981' : '#ef4444'},
+          ]}>
           {change}
         </Text>
       </View>
@@ -78,18 +42,19 @@ const StatCard = ({ title, value, change, changeType, bgColor }) => (
 );
 
 // 班级按钮组件
-const ClassButton = ({ label, active, onPress }) => (
+const ClassButton = ({label, active, onPress}) => (
   <TouchableOpacity
     style={[styles.classButton, active && styles.activeClassButton]}
     onPress={onPress}>
-    <Text style={[styles.classButtonText, active && styles.activeClassButtonText]}>
+    <Text
+      style={[styles.classButtonText, active && styles.activeClassButtonText]}>
       {label}
     </Text>
   </TouchableOpacity>
 );
 
 // 成绩分布条组件
-const ScoreBar = ({ label, count, percentage, color }) => (
+const ScoreBar = ({label, count, percentage, color}) => (
   <View style={styles.scoreBarContainer}>
     <View style={styles.scoreBarHeader}>
       <Text style={styles.scoreBarLabel}>{label}</Text>
@@ -97,7 +62,10 @@ const ScoreBar = ({ label, count, percentage, color }) => (
     </View>
     <View style={styles.scoreBar}>
       <View
-        style={[styles.scoreBarFill, { width: `${percentage}%`, backgroundColor: color }]}
+        style={[
+          styles.scoreBarFill,
+          {width: `${percentage}%`, backgroundColor: color},
+        ]}
       />
     </View>
     <Text style={styles.scoreBarPercentage}>{percentage}%</Text>
@@ -109,10 +77,7 @@ const StatsScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <LinearGradient
-        colors={['#f0f9ff', '#e0eafc']}
-        style={styles.background}
-      >
+      <LinearGradient colors={['#f0f9ff', '#e0eafc']} style={styles.background}>
         {/* 顶部导航 */}
         <View style={styles.header}>
           <Text style={styles.headerTitle}>数据统计</Text>
@@ -131,8 +96,7 @@ const StatsScreen = () => {
           horizontal
           showsHorizontalScrollIndicator={false}
           style={styles.classScrollView}
-          contentContainerStyle={styles.classButtonContainer}
-        >
+          contentContainerStyle={styles.classButtonContainer}>
           <ClassButton
             label="全部班级"
             active={activeClass === 'all'}
@@ -158,11 +122,7 @@ const StatsScreen = () => {
         <ScrollView style={styles.scrollView}>
           {/* 统计卡片 */}
           <View style={styles.statCardsContainer}>
-            <StatCard
-              title="总学生数"
-              value="156"
-              bgColor="#dbeafe"
-            />
+            <StatCard title="总学生数" value="156" bgColor="#dbeafe" />
             <StatCard
               title="平均分"
               value="86.5"
@@ -242,7 +202,10 @@ const StatsScreen = () => {
                 </View>
                 <View style={styles.classComparisonBar}>
                   <View
-                    style={[styles.classComparisonFill, { width: '86%', backgroundColor: '#0ea5e9' }]}
+                    style={[
+                      styles.classComparisonFill,
+                      {width: '86%', backgroundColor: '#0ea5e9'},
+                    ]}
                   />
                 </View>
               </View>
@@ -254,7 +217,10 @@ const StatsScreen = () => {
                 </View>
                 <View style={styles.classComparisonBar}>
                   <View
-                    style={[styles.classComparisonFill, { width: '82%', backgroundColor: '#f59e0b' }]}
+                    style={[
+                      styles.classComparisonFill,
+                      {width: '82%', backgroundColor: '#f59e0b'},
+                    ]}
                   />
                 </View>
               </View>
@@ -266,7 +232,10 @@ const StatsScreen = () => {
                 </View>
                 <View style={styles.classComparisonBar}>
                   <View
-                    style={[styles.classComparisonFill, { width: '90%', backgroundColor: '#10b981' }]}
+                    style={[
+                      styles.classComparisonFill,
+                      {width: '90%', backgroundColor: '#10b981'},
+                    ]}
                   />
                 </View>
               </View>

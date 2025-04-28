@@ -7,6 +7,7 @@ import {combineReducers} from 'redux';
 import authReducer from './authReducer';
 import taskReducer from './taskReducer';
 import {paperReducer} from './paperReducer';
+import {analysisReducer} from './analysisReducer';
 
 /**
  * 根reducer
@@ -16,6 +17,7 @@ const rootReducer = combineReducers({
   auth: authReducer,
   task: taskReducer,
   paper: paperReducer,
+  analysis: analysisReducer,
 });
 
 export default rootReducer;

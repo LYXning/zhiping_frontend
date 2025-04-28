@@ -3,7 +3,7 @@
  * 提供获取设备尺寸、状态栏高度等功能
  */
 
-import { Dimensions, Platform, StatusBar } from 'react-native';
+import {Dimensions, Platform, StatusBar} from 'react-native';
 
 // 获取屏幕宽度
 export const SCREEN_WIDTH = Dimensions.get('window').width;
@@ -23,16 +23,21 @@ export const STATUS_BAR_HEIGHT = Platform.select({
  * @returns {boolean} 是否为iPhone X或更新机型
  */
 export function isIphoneX() {
-  const { height, width } = Dimensions.get('window');
+  const {height, width} = Dimensions.get('window');
   return (
     Platform.OS === 'ios' &&
     !Platform.isPad &&
     !Platform.isTV &&
-    ((height === 780 || width === 780)
-      || (height === 812 || width === 812)
-      || (height === 844 || width === 844)
-      || (height === 896 || width === 896)
-      || (height === 926 || width === 926))
+    (height === 780 ||
+      width === 780 ||
+      height === 812 ||
+      width === 812 ||
+      height === 844 ||
+      width === 844 ||
+      height === 896 ||
+      width === 896 ||
+      height === 926 ||
+      width === 926)
   );
 }
 
@@ -41,18 +46,17 @@ export function isIphoneX() {
  * @returns {number} 底部安全区域高度
  */
 export const BOTTOM_SAFE_AREA_HEIGHT = Platform.select({
-  ios: isIphoneX() ? 34 : 0,
-  default: 0,
+  ios: isIphoneX() ? 60 : 36,
+  default: 36,
 });
 
 /**
  * 获取设备是否为平板
  * @returns {boolean} 是否为平板设备
  */
-export const IS_TABLET = (
-  ((SCREEN_HEIGHT / SCREEN_WIDTH) < 1.6) && 
-  (Platform.isPad || (Platform.OS === 'android' && SCREEN_WIDTH > 600))
-);
+export const IS_TABLET =
+  SCREEN_HEIGHT / SCREEN_WIDTH < 1.6 &&
+  (Platform.isPad || (Platform.OS === 'android' && SCREEN_WIDTH > 600));
 
 /**
  * 根据设备尺寸进行响应式计算

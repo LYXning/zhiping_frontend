@@ -3,9 +3,7 @@ import {TaskActionTypes, TaskAction, Task} from '../types/task';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Toast from 'react-native-toast-message';
-
-// API基础URL
-const API_URL = 'https://api.zhiping.com/api';
+import {getApiUrl, API_PATHS} from '../../config/apiConfig';
 
 /**
  * 获取任务列表
@@ -20,7 +18,7 @@ export const fetchTasks = () => async (dispatch: Dispatch<TaskAction>) => {
     const token = await AsyncStorage.getItem('token');
 
     // 发送请求
-    const response = await axios.get(`${API_URL}/tasks`, {
+    const response = await axios.get(getApiUrl(API_PATHS.tasks.base), {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -59,11 +57,14 @@ export const fetchTask =
       const token = await AsyncStorage.getItem('token');
 
       // 发送请求
-      const response = await axios.get(`${API_URL}/tasks/${taskId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
+      const response = await axios.get(
+        getApiUrl(`${API_PATHS.tasks.base}/${taskId}`),
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         },
-      });
+      );
 
       dispatch({
         type: TaskActionTypes.FETCH_TASK_SUCCESS,
@@ -98,7 +99,7 @@ export const createTask =
       const token = await AsyncStorage.getItem('token');
 
       // 发送请求
-      const response = await axios.post(`${API_URL}/tasks`, task, {
+      const response = await axios.post(getApiUrl(API_PATHS.tasks.base), task, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -150,12 +151,16 @@ export const updateTask =
       const token = await AsyncStorage.getItem('token');
 
       // 发送请求
-      const response = await axios.put(`${API_URL}/tasks/${taskId}`, task, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
+      const response = await axios.put(
+        getApiUrl(`${API_PATHS.tasks.base}/${taskId}`),
+        task,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
         },
-      });
+      );
 
       dispatch({
         type: TaskActionTypes.UPDATE_TASK_SUCCESS,
@@ -200,7 +205,7 @@ export const deleteTask =
       const token = await AsyncStorage.getItem('token');
 
       // 发送请求
-      await axios.delete(`${API_URL}/tasks/${taskId}`, {
+      await axios.delete(getApiUrl(`${API_PATHS.tasks.base}/${taskId}`), {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -251,12 +256,16 @@ export const saveDraft =
       };
 
       // 发送请求
-      const response = await axios.post(`${API_URL}/tasks/draft`, draftTask, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
+      const response = await axios.post(
+        getApiUrl(`${API_PATHS.tasks.base}${API_PATHS.tasks.createDraft}`),
+        draftTask,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
         },
-      });
+      );
 
       dispatch({
         type: TaskActionTypes.SAVE_DRAFT_SUCCESS,
@@ -308,7 +317,7 @@ export const publishTask =
 
       // 发送请求
       const response = await axios.post(
-        `${API_URL}/tasks/publish`,
+        getApiUrl(`${API_PATHS.tasks.base}${API_PATHS.tasks.publish}`),
         publishedTask,
         {
           headers: {
@@ -390,7 +399,7 @@ export const uploadImage =
 
       // 发送请求到试卷识别接口
       const response = await axios.post(
-        `${API_URL}/tasks//recognize`,
+        getApiUrl(`${API_PATHS.tasks.base}${API_PATHS.tasks.recognize}`),
         formData,
         {
           headers: {

@@ -10,7 +10,7 @@ export enum PaperStatus {
 // 试卷/任务接口
 export interface Paper {
   id: number;
-  name: string;
+  title: string;
   status: PaperStatus;
   subjectName?: string;
   subjectId?: number;
@@ -40,6 +40,11 @@ export enum PaperActionTypes {
 
   CLEAR_PAPER_ERRORS = 'CLEAR_PAPER_ERRORS',
 
+  // 获取最近试卷的 action types
+  FETCH_RECENT_PAPERS_REQUEST = 'FETCH_RECENT_PAPERS_REQUEST',
+  FETCH_RECENT_PAPERS_SUCCESS = 'FETCH_RECENT_PAPERS_SUCCESS',
+  FETCH_RECENT_PAPERS_FAIL = 'FETCH_RECENT_PAPERS_FAIL',
+
   // 已有的新 action types
   GET_PAPER_STATUS_REQUEST = 'GET_PAPER_STATUS_REQUEST',
   GET_PAPER_STATUS_SUCCESS = 'GET_PAPER_STATUS_SUCCESS',
@@ -52,6 +57,21 @@ export enum PaperActionTypes {
   UPDATE_ANSWERS_REQUEST = 'UPDATE_ANSWERS_REQUEST',
   UPDATE_ANSWERS_SUCCESS = 'UPDATE_ANSWERS_SUCCESS',
   UPDATE_ANSWERS_FAIL = 'UPDATE_ANSWERS_FAIL',
+
+  // 添加获取批改结果的 action types
+  GET_GRADING_RESULT_REQUEST = 'GET_GRADING_RESULT_REQUEST',
+  GET_GRADING_RESULT_SUCCESS = 'GET_GRADING_RESULT_SUCCESS',
+  GET_GRADING_RESULT_FAIL = 'GET_GRADING_RESULT_FAIL',
+
+  // 添加批改试卷的 action types
+  GRADE_PAPER_REQUEST = 'GRADE_PAPER_REQUEST',
+  GRADE_PAPER_SUCCESS = 'GRADE_PAPER_SUCCESS',
+  GRADE_PAPER_FAIL = 'GRADE_PAPER_FAIL',
+
+  // 添加获取所有评分结果的 action types
+  GET_ALL_GRADING_RESULTS_REQUEST = 'GET_ALL_GRADING_RESULTS_REQUEST',
+  GET_ALL_GRADING_RESULTS_SUCCESS = 'GET_ALL_GRADING_RESULTS_SUCCESS',
+  GET_ALL_GRADING_RESULTS_FAIL = 'GET_ALL_GRADING_RESULTS_FAIL',
 }
 
 // 更新 PaperState 接口，添加新的状态字段
@@ -69,10 +89,27 @@ export interface PaperState {
   // 已有的新状态字段
   paperStatusLoading: boolean;
   paperStatusError: any;
+  // 添加最近试卷相关的状态
+  recentPapers: Paper[];
+  recentPapersLoading: boolean;
+  recentPapersError: any;
   // 添加更新答案相关的状态
   updateAnswersLoading: boolean;
   updateAnswersSuccess: boolean;
   updateAnswersError: any;
+  // 添加获取批改结果相关的状态
+  gradingResultLoading: boolean;
+  gradingResultSuccess: boolean;
+  gradingResultError: any;
+  gradingResult: any;
+  // 添加获取所有评分结果相关的状态
+  allGradingResults: any[];
+  allGradingResultsLoading: boolean;
+  allGradingResultsError: any;
+  // 添加批改试卷相关的状态
+  gradePaperLoading: boolean;
+  gradePaperSuccess: boolean;
+  gradePaperError: any;
 }
 
 // 获取任务列表 Action 接口
@@ -168,6 +205,51 @@ interface CreatePaperFailAction {
   payload: string;
 }
 
+// 添加获取最近试卷的 Action 接口
+interface FetchRecentPapersRequestAction {
+  type: typeof PaperActionTypes.FETCH_RECENT_PAPERS_REQUEST;
+}
+
+interface FetchRecentPapersSuccessAction {
+  type: typeof PaperActionTypes.FETCH_RECENT_PAPERS_SUCCESS;
+  payload: Paper[];
+}
+
+interface FetchRecentPapersFailAction {
+  type: typeof PaperActionTypes.FETCH_RECENT_PAPERS_FAIL;
+  payload: string;
+}
+
+// 添加获取批改结果的 Action 接口
+interface GetGradingResultRequestAction {
+  type: typeof PaperActionTypes.GET_GRADING_RESULT_REQUEST;
+}
+
+interface GetGradingResultSuccessAction {
+  type: typeof PaperActionTypes.GET_GRADING_RESULT_SUCCESS;
+  payload: any;
+}
+
+interface GetGradingResultFailAction {
+  type: typeof PaperActionTypes.GET_GRADING_RESULT_FAIL;
+  payload: string;
+}
+
+// 添加批改试卷的 Action 接口
+interface GradePaperRequestAction {
+  type: typeof PaperActionTypes.GRADE_PAPER_REQUEST;
+}
+
+interface GradePaperSuccessAction {
+  type: typeof PaperActionTypes.GRADE_PAPER_SUCCESS;
+  payload: any;
+}
+
+interface GradePaperFailAction {
+  type: typeof PaperActionTypes.GRADE_PAPER_FAIL;
+  payload: string;
+}
+
 // 组合所有 Paper Action 类型
 export type PaperAction =
   | GetTasksRequestAction
@@ -188,4 +270,13 @@ export type PaperAction =
   | CreatePaperFailAction
   | UpdateAnswersRequestAction
   | UpdateAnswersSuccessAction
-  | UpdateAnswersFailAction;
+  | UpdateAnswersFailAction
+  | FetchRecentPapersRequestAction
+  | FetchRecentPapersSuccessAction
+  | FetchRecentPapersFailAction
+  | GetGradingResultRequestAction
+  | GetGradingResultSuccessAction
+  | GetGradingResultFailAction
+  | GradePaperRequestAction
+  | GradePaperSuccessAction
+  | GradePaperFailAction;

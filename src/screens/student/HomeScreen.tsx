@@ -3,7 +3,7 @@
  * 显示教师首页界面，包含快捷功能、待处理任务和最近分析等模块
  */
 
-import React from 'react';
+import React, {useEffect} from 'react';
 import {
   View,
   Text,
@@ -11,70 +11,26 @@ import {
   SafeAreaView,
   ScrollView,
   TouchableOpacity,
-  TextInput,
-  Image,
+  ActivityIndicator,
 } from 'react-native';
 
 import LinearGradient from 'react-native-linear-gradient';
 
-// 导入图标资源
-import {
-  homeIcon,
-  searchIcon,
-  scanIcon,
-  chartIcon,
-  bookIcon,
-  fileIcon,
-  fileCheckIcon,
-  trendingUpIcon,
-  zapIcon,
-  bellIcon,
-  clipboardCheckIcon,
-} from '../../assets/icons';
 import {STATUS_BAR_HEIGHT} from '../../utils/devicesUtils';
-import {useNavigation} from '@react-navigation/native';
+import {useNavigation, useFocusEffect} from '@react-navigation/native';
 import {AnalysisCard} from '../../components/specific/AnalysisCard';
-import {useSelector} from 'react-redux';
+import {useSelector, useDispatch} from 'react-redux';
 import {RootState} from '../../store';
 import {TaskCard} from '../../components/specific/TaskCard';
-
-// 临时使用的图标组件，后续可替换为实际图标
-const Icon = ({name, size = 24, color = '#000'}) => {
-  // 根据图标名称返回对应的图标组件
-  const getIconSource = iconName => {
-    switch (iconName) {
-      case 'zap':
-        return zapIcon; // 临时替代
-      case 'bell':
-        return bellIcon; // 临时替代
-      case 'search':
-        return searchIcon;
-      case 'scan-line':
-        return scanIcon;
-      case 'clipboard-check':
-        return clipboardCheckIcon; // 临时替代
-      case 'bar-chart-2':
-        return chartIcon;
-      case 'book-open':
-        return bookIcon;
-      case 'file-text':
-        return fileIcon;
-      case 'file-check':
-        return fileCheckIcon;
-      case 'trending-up':
-        return trendingUpIcon;
-      default:
-        return homeIcon;
-    }
-  };
-
-  return (
-    <Image
-      source={getIconSource(name)}
-      style={{width: size, height: size, tintColor: color}}
-    />
-  );
-};
+import {
+  fetchRecentPapers,
+  fetchAllGradingResults,
+} from '../../store/actions/paperActions';
+import Icon from '../../components/common/Icon';
+import {getSubjectEnglishNameById} from '../../utils/subjectUtils';
+import {dateUtils} from '../../utils/dateUtils';
+import LineChartComponent from '../../components/specific/LineChartComponent';
+import {scoreHistoryData} from '../../mock/scoreHistoryData';
 
 // 快捷功能项组件
 const QuickActionItem = ({icon, color, bgColor, label, onPress}) => (
@@ -88,9 +44,39 @@ const QuickActionItem = ({icon, color, bgColor, label, onPress}) => (
 
 const HomeScreen = () => {
   const user = useSelector((state: RootState) => state.auth.user);
-  console.log(user);
-
+  const dispatch = useDispatch();
   const navigation = useNavigation();
+
+  // 从Redux获取最近试卷数据和所有评分结果
+  const {
+    recentPapers = [],
+    recentPapersLoading = false,
+    recentPapersError = null,
+    allGradingResults = [],
+    allGradingResultsLoading = false,
+    allGradingResultsError = null,
+  } = useSelector((state: RootState) => state.paper);
+
+  // 使用useFocusEffect替代useEffect，确保每次页面获得焦点时都刷新数据
+  useFocusEffect(
+    React.useCallback(() => {
+      console.log('HomeScreen获得焦点，刷新数据');
+      dispatch(fetchRecentPapers());
+      dispatch(fetchAllGradingResults());
+
+      return () => {
+        // 可选的清理函数
+        console.log('HomeScreen失去焦点');
+      };
+    }, [dispatch]),
+  );
+
+  // 保留原来的useEffect作为初始加载
+  useEffect(() => {
+    console.log('HomeScreen初始加载');
+    dispatch(fetchRecentPapers());
+    dispatch(fetchAllGradingResults());
+  }, [dispatch]);
 
   // 处理扫描试卷点击
   const handleScanPress = () => {
@@ -138,7 +124,7 @@ const HomeScreen = () => {
           {/* 快捷功能 */}
           <View style={styles.quickActions}>
             <QuickActionItem
-              icon="scan-line"
+              icon="scan"
               color="#dc2626"
               bgColor="#fee2e2"
               label="扫描试卷"
@@ -152,14 +138,19 @@ const HomeScreen = () => {
               onPress={() => console.log('批改作业')}
             />
             <QuickActionItem
-              icon="bar-chart-2"
+              icon="chart"
               color="#7c3aed"
               bgColor="#f3e8ff"
               label="数据分析"
-              onPress={() => console.log('数据分析')}
+              onPress={
+                () => {}
+                // navigation.navigate('Student', {
+                //   screen: 'WeaknessAnalysis',
+                // })
+              }
             />
             <QuickActionItem
-              icon="book-open"
+              icon="book"
               color="#ca8a04"
               bgColor="#fef3c7"
               label="学习资源"
@@ -167,73 +158,75 @@ const HomeScreen = () => {
             />
           </View>
 
-          {/* 待处理任务 */}
+          {/* 最近试卷 */}
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
               <Text style={styles.sectionTitle}>最近试卷</Text>
-              <TouchableOpacity>
+              {/* <TouchableOpacity>
                 <Text style={styles.sectionAction}>查看全部</Text>
-              </TouchableOpacity>
+              </TouchableOpacity> */}
             </View>
 
             <View style={styles.taskList}>
-              <TaskCard
-                id={1}
-                icon="file-text"
-                iconBg="#dbeafe"
-                iconColor="0284c7"
-                title="物理周测试卷"
-                subtitle="高二(3)班 · 35份"
-                deadline="截止日期 = 今天"
-                status={1}
-                showActionButton={true}
-              />
-              <TaskCard
-                id={2}
-                icon="file-text"
-                iconBg="#dbeafe"
-                iconColor="0284c7"
-                title="期中数学试卷"
-                subtitle="高二(3)班 · 35份"
-                deadline="截止日期= 今天"
-                status={2}
-                showActionButton={true}
-              />
-
-              <TaskCard
-                id={3}
-                icon="file-text"
-                iconBg="#dbeafe"
-                iconColor="0284c7"
-                title="期中数学试卷"
-                subtitle="高二(3)班 · 35份"
-                deadline="截止日期= 今天"
-                status={3}
-                showActionButton={true}
-              />
-
-              <TaskCard
-                id={3}
-                icon="file-text"
-                iconBg="#dbeafe"
-                iconColor="0284c7"
-                title="期中数学试卷"
-                subtitle="高二(3)班 · 35份"
-                deadline="截止日期= 今天"
-                status={4}
-                showActionButton={true}
-              />
-              <TaskCard
-                id={5}
-                icon="file-text"
-                iconBg="#dbeafe"
-                iconColor="0284c7"
-                title="期中数学试卷"
-                subtitle="高二(3)班 · 35份"
-                deadline="截止日期= 今天"
-                status={5}
-                showActionButton={true}
-              />
+              {recentPapersLoading ? (
+                <View style={styles.loadingContainer}>
+                  <ActivityIndicator size="large" color="#0ea5e9" />
+                  <Text style={styles.loadingText}>加载试卷中...</Text>
+                </View>
+              ) : recentPapersError ? (
+                <View style={styles.errorContainer}>
+                  <Text style={styles.errorText}>
+                    加载试卷失败: {recentPapersError.toString()}
+                  </Text>
+                  <TouchableOpacity
+                    style={styles.retryButton}
+                    onPress={() => dispatch(fetchRecentPapers())}>
+                    <Text style={styles.retryText}>重试</Text>
+                  </TouchableOpacity>
+                </View>
+              ) : recentPapers.length === 0 ? (
+                <View style={styles.emptyContainer}>
+                  <Text style={styles.emptyText}>暂无试卷</Text>
+                </View>
+              ) : (
+                recentPapers.map(paper => (
+                  <TaskCard
+                    key={paper.id}
+                    id={paper.id}
+                    icon={getSubjectEnglishNameById(
+                      paper.subjectId,
+                    ).toLocaleLowerCase()}
+                    title={paper.title}
+                    subtitle={'创建时间：' + paper.createdAt}
+                    status={paper.status}
+                    deadline={
+                      '创建时间：' + dateUtils.defaultFormat(paper.createdAt)
+                    }
+                    onPress={() => {
+                      // 根据试卷状态导航到不同页面
+                      if (paper.status === 3) {
+                        // 待批改
+                        navigation.navigate('Student', {
+                          screen: 'PaperReview',
+                          params: {
+                            paperId: paper.id,
+                            paperName: paper.title,
+                          },
+                        });
+                      } else {
+                        // 其他状态
+                        navigation.navigate('Student', {
+                          screen: 'PaperResult',
+                          params: {
+                            paperId: paper.id,
+                            paperName: paper.title,
+                          },
+                        });
+                      }
+                    }}
+                  />
+                ))
+              )}
             </View>
           </View>
 
@@ -241,43 +234,66 @@ const HomeScreen = () => {
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
               <Text style={styles.sectionTitle}>最近分析</Text>
-              <TouchableOpacity>
+              {/* <TouchableOpacity>
                 <Text style={styles.sectionAction}>查看全部</Text>
-              </TouchableOpacity>
+              </TouchableOpacity> */}
             </View>
 
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              style={styles.analysisScrollView}>
-              <AnalysisCard
-                title="高二(3)班期中考试分析"
-                subtitle="数学 · 2023年春季学期"
-                averageScore={85.2}
-                maxScore={92}
-                minScore={65}
-                passRate="78%"
-                excellentRate="35%"
-              />
-              <AnalysisCard
-                title="高一(2)班月考分析"
-                subtitle="物理 · 2023年春季学期"
-                averageScore={82.5}
-                maxScore={95}
-                minScore={60}
-                passRate="85%"
-                excellentRate="40%"
-              />
-              <AnalysisCard
-                title="高三(1)班模拟考试"
-                subtitle="英语 · 2023年春季学期"
-                averageScore={78.3}
-                maxScore={98}
-                minScore={55}
-                passRate="75%"
-                excellentRate="30%"
-              />
-            </ScrollView>
+            {allGradingResultsLoading ? (
+              <View style={styles.loadingContainer}>
+                <ActivityIndicator size="large" color="#0ea5e9" />
+                <Text style={styles.loadingText}>加载分析结果中...</Text>
+              </View>
+            ) : allGradingResultsError ? (
+              <View style={styles.errorContainer}>
+                <Text style={styles.errorText}>
+                  加载分析结果失败: {allGradingResultsError.toString()}
+                </Text>
+                <TouchableOpacity
+                  style={styles.retryButton}
+                  onPress={() => dispatch(fetchAllGradingResults())}>
+                  <Text style={styles.retryText}>重试</Text>
+                </TouchableOpacity>
+              </View>
+            ) : allGradingResults.length === 0 ? (
+              <View style={styles.emptyContainer}>
+                <Text style={styles.emptyText}>暂无分析结果</Text>
+              </View>
+            ) : (
+              // 使用水平滚动视图替换原来的View
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.analysisScrollViewContent}>
+                {allGradingResults.map((result, index) => (
+                  <AnalysisCard
+                    key={index}
+                    title={result.taskName || '未命名试卷'}
+                    averageScore={result.totalScore || 0}
+                    fullScore={result.totalPossibleScore || 0}
+                    correctRate={result.scoreRate || 0}
+                    correctNumber={result.correntCount || 0}
+                    wrongNumber={result.wrongCount || 0}
+                    subject={
+                      (result.subjectId &&
+                        getSubjectEnglishNameById(
+                          result.subjectId,
+                        ).toLowerCase()) ||
+                      'unknown'
+                    }
+                    onPress={() => {
+                      navigation.navigate('Student', {
+                        screen: 'PaperReport',
+                        params: {
+                          paperId: result.taskId,
+                          paperName: result.taskName,
+                        },
+                      });
+                    }}
+                  />
+                ))}
+              </ScrollView>
+            )}
           </View>
         </ScrollView>
       </LinearGradient>
@@ -291,6 +307,56 @@ const styles = StyleSheet.create({
   },
   background: {
     flex: 1,
+  },
+  // 加载状态样式
+  loadingContainer: {
+    padding: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  loadingText: {
+    marginTop: 10,
+    fontSize: 14,
+    color: '#4b5563',
+  },
+  // 错误状态样式
+  errorContainer: {
+    padding: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(254, 226, 226, 0.5)',
+    borderRadius: 12,
+  },
+  errorText: {
+    marginBottom: 10,
+    fontSize: 14,
+    color: '#dc2626',
+    textAlign: 'center',
+  },
+  retryButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    backgroundColor: '#0ea5e9',
+    borderRadius: 8,
+  },
+  retryText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#ffffff',
+  },
+  // 空数据状态样式
+  emptyContainer: {
+    padding: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.18)',
+  },
+  emptyText: {
+    fontSize: 14,
+    color: '#6b7280',
   },
   header: {
     flexDirection: 'row',
@@ -393,6 +459,18 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#0284c7',
   },
+  sectionSubtitle: {
+    fontSize: 12,
+    color: '#64748b',
+  },
+  chartContainer: {
+    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.18)',
+  },
   taskList: {
     gap: 12,
   },
@@ -458,8 +536,16 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '500',
   },
+  analysisList: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
   analysisScrollView: {
     marginHorizontal: -4,
+  },
+  analysisScrollViewContent: {
+    paddingHorizontal: 4,
   },
   analysisCard: {
     backgroundColor: 'rgba(255, 255, 255, 0.25)',

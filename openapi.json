@@ -1,0 +1,1668 @@
+{
+  "openapi" : "3.0.1",
+  "info" : {
+    "title" : "API Documentation",
+    "version" : "1.0"
+  },
+  "paths" : {
+    "/api/ai/image/analyze" : {
+      "post" : {
+        "summary" : "分析图片内容",
+        "description" : "分析图片内容",
+        "requestBody" : {
+          "content" : {
+            "multipart/form-data" : {
+              "schema" : {
+                "required" : [ "image" ],
+                "type" : "object",
+                "properties" : {
+                  "image" : {
+                    "type" : "string",
+                    "description" : "图片文件",
+                    "format" : "binary"
+                  }
+                }
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "分析结果",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties" : {
+                    "success" : {
+                      "type" : "boolean",
+                      "description" : ""
+                    },
+                    "message" : {
+                      "type" : "string",
+                      "description" : ""
+                    },
+                    "code" : {
+                      "type" : "integer",
+                      "description" : ""
+                    },
+                    "data" : {
+                      "type" : "object",
+                      "properties" : {
+                        "key" : {
+                          "type" : "object",
+                          "properties" : { }
+                        }
+                      },
+                      "description" : ""
+                    }
+                  },
+                  "description" : "分析结果"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/paper/createTask" : {
+      "post" : {
+        "summary" : "创建任务",
+        "description" : "创建任务",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "object",
+                "properties" : {
+                  "name" : {
+                    "type" : "string",
+                    "description" : ""
+                  },
+                  "subjectId" : {
+                    "type" : "integer",
+                    "description" : "",
+                    "format" : "int64"
+                  },
+                  "gradeName" : {
+                    "type" : "string",
+                    "description" : ""
+                  },
+                  "additionalParams" : {
+                    "type" : "object",
+                    "properties" : {
+                      "key" : {
+                        "type" : "object",
+                        "properties" : { }
+                      }
+                    },
+                    "description" : ""
+                  }
+                },
+                "description" : "任务参数"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "创建的任务信息",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties" : {
+                    "success" : {
+                      "type" : "boolean",
+                      "description" : ""
+                    },
+                    "message" : {
+                      "type" : "string",
+                      "description" : ""
+                    },
+                    "code" : {
+                      "type" : "integer",
+                      "description" : ""
+                    },
+                    "data" : {
+                      "type" : "object",
+                      "properties" : {
+                        "id" : {
+                          "type" : "integer",
+                          "description" : "",
+                          "format" : "int64"
+                        },
+                        "name" : {
+                          "type" : "string",
+                          "description" : ""
+                        },
+                        "type" : {
+                          "type" : "integer",
+                          "description" : ""
+                        },
+                        "subjectId" : {
+                          "type" : "integer",
+                          "description" : "",
+                          "format" : "int64"
+                        },
+                        "deadline" : {
+                          "type" : "string",
+                          "description" : ""
+                        },
+                        "reminder" : {
+                          "type" : "string",
+                          "description" : ""
+                        },
+                        "filePath" : {
+                          "type" : "string",
+                          "description" : ""
+                        },
+                        "answerPath" : {
+                          "type" : "string",
+                          "description" : ""
+                        },
+                        "aiAutoGrade" : {
+                          "type" : "boolean",
+                          "description" : ""
+                        },
+                        "teacherReview" : {
+                          "type" : "boolean",
+                          "description" : ""
+                        },
+                        "publishGradeImmediately" : {
+                          "type" : "boolean",
+                          "description" : ""
+                        },
+                        "priority" : {
+                          "type" : "integer",
+                          "description" : ""
+                        },
+                        "taskNotification" : {
+                          "type" : "boolean",
+                          "description" : ""
+                        },
+                        "deadlineNotification" : {
+                          "type" : "boolean",
+                          "description" : ""
+                        },
+                        "gradeNotification" : {
+                          "type" : "boolean",
+                          "description" : ""
+                        },
+                        "status" : {
+                          "type" : "integer",
+                          "description" : ""
+                        },
+                        "creatorId" : {
+                          "type" : "integer",
+                          "description" : "",
+                          "format" : "int64"
+                        },
+                        "mongoContentId" : {
+                          "type" : "string",
+                          "description" : ""
+                        },
+                        "createTime" : {
+                          "type" : "string",
+                          "description" : ""
+                        },
+                        "updateTime" : {
+                          "type" : "string",
+                          "description" : ""
+                        }
+                      },
+                      "description" : ""
+                    }
+                  },
+                  "description" : "创建的任务信息"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/paper/analyze" : {
+      "post" : {
+        "summary" : "试卷分析任务名称",
+        "description" : "试卷分析任务名称",
+        "requestBody" : {
+          "content" : {
+            "multipart/form-data" : {
+              "schema" : {
+                "type" : "object",
+                "properties" : {
+                  "taskId" : {
+                    "type" : "integer",
+                    "nullable" : false,
+                    "example" : "0",
+                    "default" : "0"
+                  },
+                  "images" : {
+                    "type" : "string",
+                    "description" : "试卷图片",
+                    "format" : "binary"
+                  }
+                }
+              }
+            }
+          },
+          "required" : false
+        },
+        "responses" : {
+          "200" : {
+            "description" : "创建的任务信息",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties" : {
+                    "success" : {
+                      "type" : "boolean",
+                      "description" : ""
+                    },
+                    "message" : {
+                      "type" : "string",
+                      "description" : ""
+                    },
+                    "code" : {
+                      "type" : "integer",
+                      "description" : ""
+                    },
+                    "data" : {
+                      "type" : "object",
+                      "properties" : {
+                        "key" : {
+                          "type" : "object",
+                          "properties" : { }
+                        }
+                      },
+                      "description" : ""
+                    }
+                  },
+                  "description" : "创建的任务信息"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/paper/getPaperInfo" : {
+      "get" : {
+        "summary" : "获取试卷信息和用户答案",
+        "description" : "获取试卷信息和用户答案",
+        "parameters" : [ {
+          "name" : "taskId",
+          "in" : "query",
+          "description" : "任务ID",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "nullable" : false
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "试卷信息和用户答案",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties" : {
+                    "success" : {
+                      "type" : "boolean",
+                      "description" : ""
+                    },
+                    "message" : {
+                      "type" : "string",
+                      "description" : ""
+                    },
+                    "code" : {
+                      "type" : "integer",
+                      "description" : ""
+                    },
+                    "data" : {
+                      "type" : "object",
+                      "properties" : {
+                        "key" : {
+                          "type" : "object",
+                          "properties" : { }
+                        }
+                      },
+                      "description" : ""
+                    }
+                  },
+                  "description" : "试卷信息和用户答案"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/paper/gradePaper" : {
+      "post" : {
+        "summary" : "批改试卷",
+        "description" : "批改试卷",
+        "parameters" : [ {
+          "name" : "taskId",
+          "in" : "query",
+          "description" : "任务ID",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "nullable" : false
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "用户ID",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties" : {
+                    "success" : {
+                      "type" : "boolean",
+                      "description" : ""
+                    },
+                    "message" : {
+                      "type" : "string",
+                      "description" : ""
+                    },
+                    "code" : {
+                      "type" : "integer",
+                      "description" : ""
+                    },
+                    "data" : {
+                      "type" : "object",
+                      "properties" : {
+                        "key" : {
+                          "type" : "object",
+                          "properties" : { }
+                        }
+                      },
+                      "description" : ""
+                    }
+                  },
+                  "description" : "用户ID"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/paper/updateAnswer" : {
+      "post" : {
+        "summary" : "修改用户答案",
+        "description" : "修改用户答案",
+        "parameters" : [ {
+          "name" : "taskId",
+          "in" : "query",
+          "description" : "任务ID",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "nullable" : false
+          }
+        }, {
+          "name" : "sequence",
+          "in" : "query",
+          "description" : "题目序号",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "nullable" : false
+          }
+        }, {
+          "name" : "content",
+          "in" : "query",
+          "description" : "修改后的答案内容",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "nullable" : false
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "修改结果",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties" : {
+                    "success" : {
+                      "type" : "boolean",
+                      "description" : ""
+                    },
+                    "message" : {
+                      "type" : "string",
+                      "description" : ""
+                    },
+                    "code" : {
+                      "type" : "integer",
+                      "description" : ""
+                    },
+                    "data" : {
+                      "type" : "object",
+                      "properties" : {
+                        "key" : {
+                          "type" : "object",
+                          "properties" : { }
+                        }
+                      },
+                      "description" : ""
+                    }
+                  },
+                  "description" : "修改结果"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/paper/getGradingResult" : {
+      "get" : {
+        "summary" : "获取试卷分析结果",
+        "description" : "获取试卷分析结果",
+        "parameters" : [ {
+          "name" : "taskId",
+          "in" : "query",
+          "description" : "任务ID",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "nullable" : false
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "试卷评分结果",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties" : {
+                    "success" : {
+                      "type" : "boolean",
+                      "description" : ""
+                    },
+                    "message" : {
+                      "type" : "string",
+                      "description" : ""
+                    },
+                    "code" : {
+                      "type" : "integer",
+                      "description" : ""
+                    },
+                    "data" : {
+                      "type" : "object",
+                      "properties" : {
+                        "key" : {
+                          "type" : "object",
+                          "properties" : { }
+                        }
+                      },
+                      "description" : ""
+                    }
+                  },
+                  "description" : "试卷评分结果"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/paper/getAllGradingResults" : {
+      "get" : {
+        "summary" : "获取用户的所有评分结果",
+        "description" : "获取用户的所有评分结果",
+        "responses" : {
+          "200" : {
+            "description" : "所有评分结果的列表",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties" : {
+                    "success" : {
+                      "type" : "boolean",
+                      "description" : ""
+                    },
+                    "message" : {
+                      "type" : "string",
+                      "description" : ""
+                    },
+                    "code" : {
+                      "type" : "integer",
+                      "description" : ""
+                    },
+                    "data" : {
+                      "type" : "array",
+                      "description" : "",
+                      "items" : {
+                        "type" : "object",
+                        "properties" : {
+                          "key" : {
+                            "type" : "object",
+                            "properties" : { }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "description" : "所有评分结果的列表"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/paper/batchUpdateAnswers" : {
+      "post" : {
+        "summary" : "批量修改用户答案",
+        "description" : "批量修改用户答案",
+        "parameters" : [ {
+          "name" : "taskId",
+          "in" : "query",
+          "description" : "任务ID",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "nullable" : false
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "array",
+                "description" : "修改后的答案列表，格式为[{sequence: 1, content: \"答案内容\"}, ...]",
+                "items" : {
+                  "type" : "object",
+                  "properties" : {
+                    "key" : {
+                      "type" : "object",
+                      "properties" : { }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "修改结果",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties" : {
+                    "success" : {
+                      "type" : "boolean",
+                      "description" : ""
+                    },
+                    "message" : {
+                      "type" : "string",
+                      "description" : ""
+                    },
+                    "code" : {
+                      "type" : "integer",
+                      "description" : ""
+                    },
+                    "data" : {
+                      "type" : "object",
+                      "properties" : {
+                        "key" : {
+                          "type" : "object",
+                          "properties" : { }
+                        }
+                      },
+                      "description" : ""
+                    }
+                  },
+                  "description" : "修改结果"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/paper/updateMongodb" : {
+      "get" : {
+        "summary" : "更新MongoDB中的评分结果",
+        "description" : "更新MongoDB中的评分结果",
+        "responses" : {
+          "200" : {
+            "description" : "更新结果",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties" : {
+                    "success" : {
+                      "type" : "boolean",
+                      "description" : ""
+                    },
+                    "message" : {
+                      "type" : "string",
+                      "description" : ""
+                    },
+                    "code" : {
+                      "type" : "integer",
+                      "description" : ""
+                    },
+                    "data" : {
+                      "type" : "integer",
+                      "description" : "",
+                      "format" : "int64"
+                    }
+                  },
+                  "description" : "更新结果"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/submissions/submit" : {
+      "post" : {
+        "summary" : "submitPaper",
+        "description" : "submitPaper",
+        "parameters" : [ {
+          "name" : "taskId",
+          "in" : "query",
+          "description" : "",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "nullable" : false
+          }
+        }, {
+          "name" : "userId",
+          "in" : "query",
+          "description" : "",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "nullable" : false
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "multipart/form-data" : {
+              "schema" : {
+                "required" : [ "file" ],
+                "type" : "object",
+                "properties" : {
+                  "file" : {
+                    "type" : "string",
+                    "description" : "",
+                    "format" : "binary"
+                  }
+                }
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties" : {
+                    "key" : {
+                      "type" : "object",
+                      "properties" : { }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/submissions/{submissionId}" : {
+      "get" : {
+        "summary" : "getSubmissionDetail",
+        "description" : "getSubmissionDetail",
+        "parameters" : [ {
+          "name" : "submissionId",
+          "in" : "path",
+          "description" : "",
+          "required" : true,
+          "schema" : {
+            "type" : "integer"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties" : {
+                    "key" : {
+                      "type" : "object",
+                      "properties" : { }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api-docs" : {
+      "get" : {
+        "summary" : "apiDocs",
+        "description" : "apiDocs",
+        "responses" : {
+          "200" : {
+            "description" : "",
+            "content" : {
+              "text/html" : {
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/images/upload" : {
+      "post" : {
+        "summary" : "uploadImage",
+        "description" : "uploadImage",
+        "requestBody" : {
+          "content" : {
+            "multipart/form-data" : {
+              "schema" : {
+                "required" : [ "file" ],
+                "type" : "object",
+                "properties" : {
+                  "file" : {
+                    "type" : "string",
+                    "description" : "",
+                    "format" : "binary"
+                  }
+                }
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties" : { }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/create-task" : {
+      "get" : {
+        "summary" : "任务创建页面",
+        "description" : "任务创建页面",
+        "responses" : {
+          "200" : {
+            "description" : "",
+            "content" : {
+              "text/html" : {
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/test" : {
+      "get" : {
+        "summary" : "taskPage",
+        "description" : "taskPage",
+        "responses" : {
+          "200" : {
+            "description" : "",
+            "content" : {
+              "text/html" : {
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/register" : {
+      "post" : {
+        "summary" : "用户注册",
+        "description" : "用户注册",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "object",
+                "properties" : {
+                  "username" : {
+                    "type" : "string",
+                    "description" : ""
+                  },
+                  "password" : {
+                    "type" : "string",
+                    "description" : ""
+                  },
+                  "phone" : {
+                    "type" : "string",
+                    "description" : ""
+                  },
+                  "name" : {
+                    "type" : "string",
+                    "description" : ""
+                  },
+                  "role" : {
+                    "type" : "string",
+                    "description" : "{STUDENT=STUDENT, TEACHER=TEACHER}",
+                    "enum" : [ "STUDENT", "TEACHER" ]
+                  },
+                  "school" : {
+                    "type" : "string",
+                    "description" : ""
+                  },
+                  "studentID" : {
+                    "type" : "string",
+                    "description" : ""
+                  },
+                  "verificationCode" : {
+                    "type" : "string",
+                    "description" : "手机验证码"
+                  }
+                },
+                "description" : ""
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties" : {
+                    "success" : {
+                      "type" : "boolean",
+                      "description" : ""
+                    },
+                    "message" : {
+                      "type" : "string",
+                      "description" : ""
+                    },
+                    "code" : {
+                      "type" : "integer",
+                      "description" : ""
+                    },
+                    "data" : {
+                      "type" : "object",
+                      "properties" : {
+                        "key" : {
+                          "type" : "object",
+                          "properties" : { }
+                        }
+                      },
+                      "description" : ""
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/login" : {
+      "post" : {
+        "summary" : "用户登录",
+        "description" : "用户登录",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "object",
+                "properties" : {
+                  "usernameOrPhone" : {
+                    "type" : "string",
+                    "description" : "用户名或手机号"
+                  },
+                  "password" : {
+                    "type" : "string",
+                    "description" : ""
+                  },
+                  "verificationCode" : {
+                    "type" : "string",
+                    "description" : "用于验证码登录"
+                  },
+                  "useSmsLogin" : {
+                    "type" : "boolean",
+                    "description" : "是否使用短信验证码登录"
+                  }
+                },
+                "description" : ""
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties" : {
+                    "success" : {
+                      "type" : "boolean",
+                      "description" : ""
+                    },
+                    "message" : {
+                      "type" : "string",
+                      "description" : ""
+                    },
+                    "code" : {
+                      "type" : "integer",
+                      "description" : ""
+                    },
+                    "data" : {
+                      "type" : "object",
+                      "properties" : {
+                        "key" : {
+                          "type" : "object",
+                          "properties" : { }
+                        }
+                      },
+                      "description" : ""
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/send-verification-code" : {
+      "post" : {
+        "summary" : "发送验证码",
+        "description" : "发送验证码",
+        "parameters" : [ {
+          "name" : "phone",
+          "in" : "query",
+          "description" : "",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "nullable" : false
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties" : {
+                    "success" : {
+                      "type" : "boolean",
+                      "description" : ""
+                    },
+                    "message" : {
+                      "type" : "string",
+                      "description" : ""
+                    },
+                    "code" : {
+                      "type" : "integer",
+                      "description" : ""
+                    },
+                    "data" : {
+                      "type" : "string",
+                      "description" : ""
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/check-username" : {
+      "get" : {
+        "summary" : "检查用户名是否可用",
+        "description" : "检查用户名是否可用",
+        "parameters" : [ {
+          "name" : "username",
+          "in" : "query",
+          "description" : "",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "nullable" : false
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties" : {
+                    "success" : {
+                      "type" : "boolean",
+                      "description" : ""
+                    },
+                    "message" : {
+                      "type" : "string",
+                      "description" : ""
+                    },
+                    "code" : {
+                      "type" : "integer",
+                      "description" : ""
+                    },
+                    "data" : {
+                      "type" : "boolean",
+                      "description" : ""
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/check-phone" : {
+      "get" : {
+        "summary" : "检查手机号是否可用",
+        "description" : "检查手机号是否可用",
+        "parameters" : [ {
+          "name" : "phone",
+          "in" : "query",
+          "description" : "",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "nullable" : false
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties" : {
+                    "success" : {
+                      "type" : "boolean",
+                      "description" : ""
+                    },
+                    "message" : {
+                      "type" : "string",
+                      "description" : ""
+                    },
+                    "code" : {
+                      "type" : "integer",
+                      "description" : ""
+                    },
+                    "data" : {
+                      "type" : "boolean",
+                      "description" : ""
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/validate-token" : {
+      "get" : {
+        "summary" : "验证令牌",
+        "description" : "验证令牌",
+        "parameters" : [ {
+          "name" : "Authorization",
+          "in" : "header",
+          "description" : "",
+          "required" : true,
+          "schema" : { }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties" : {
+                    "success" : {
+                      "type" : "boolean",
+                      "description" : ""
+                    },
+                    "message" : {
+                      "type" : "string",
+                      "description" : ""
+                    },
+                    "code" : {
+                      "type" : "integer",
+                      "description" : ""
+                    },
+                    "data" : {
+                      "type" : "object",
+                      "properties" : {
+                        "key" : {
+                          "type" : "object",
+                          "properties" : { }
+                        }
+                      },
+                      "description" : ""
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/user-info" : {
+      "get" : {
+        "summary" : "用户信息",
+        "description" : "用户信息",
+        "parameters" : [ {
+          "name" : "Authorization",
+          "in" : "header",
+          "description" : "",
+          "required" : true,
+          "schema" : { }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties" : {
+                    "success" : {
+                      "type" : "boolean",
+                      "description" : ""
+                    },
+                    "message" : {
+                      "type" : "string",
+                      "description" : ""
+                    },
+                    "code" : {
+                      "type" : "integer",
+                      "description" : ""
+                    },
+                    "data" : {
+                      "type" : "object",
+                      "properties" : {
+                        "userId" : {
+                          "type" : "integer",
+                          "description" : "",
+                          "format" : "int64"
+                        },
+                        "username" : {
+                          "type" : "string",
+                          "description" : ""
+                        },
+                        "password" : {
+                          "type" : "string",
+                          "description" : ""
+                        },
+                        "phone" : {
+                          "type" : "string",
+                          "description" : ""
+                        },
+                        "name" : {
+                          "type" : "string",
+                          "description" : ""
+                        },
+                        "role" : {
+                          "type" : "string",
+                          "description" : "{STUDENT=STUDENT, TEACHER=TEACHER}",
+                          "enum" : [ "STUDENT", "TEACHER" ]
+                        },
+                        "school" : {
+                          "type" : "string",
+                          "description" : ""
+                        },
+                        "studentID" : {
+                          "type" : "string",
+                          "description" : ""
+                        },
+                        "createdAt" : {
+                          "type" : "string",
+                          "description" : ""
+                        }
+                      },
+                      "description" : ""
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tasks/scan/submit" : {
+      "post" : {
+        "summary" : "扫描试卷任务",
+        "description" : "扫描试卷任务",
+        "requestBody" : {
+          "content" : {
+            "multipart/form-data" : {
+              "schema" : {
+                "type" : "object",
+                "properties" : {
+                  "taskData" : {
+                    "type" : "string",
+                    "nullable" : false,
+                    "example" : ""
+                  },
+                  "images" : {
+                    "type" : "string",
+                    "description" : "试卷图片",
+                    "format" : "binary"
+                  }
+                }
+              }
+            }
+          },
+          "required" : false
+        },
+        "responses" : {
+          "200" : {
+            "description" : "创建的任务信息",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties" : {
+                    "success" : {
+                      "type" : "boolean",
+                      "description" : ""
+                    },
+                    "message" : {
+                      "type" : "string",
+                      "description" : ""
+                    },
+                    "code" : {
+                      "type" : "integer",
+                      "description" : ""
+                    },
+                    "data" : {
+                      "type" : "object",
+                      "properties" : {
+                        "key" : {
+                          "type" : "object",
+                          "properties" : { }
+                        }
+                      },
+                      "description" : ""
+                    }
+                  },
+                  "description" : "创建的任务信息"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tasks/getTasks" : {
+      "get" : {
+        "summary" : "获取任务列表",
+        "description" : "获取任务列表",
+        "responses" : {
+          "200" : {
+            "description" : "",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties" : {
+                    "success" : {
+                      "type" : "boolean",
+                      "description" : ""
+                    },
+                    "message" : {
+                      "type" : "string",
+                      "description" : ""
+                    },
+                    "code" : {
+                      "type" : "integer",
+                      "description" : ""
+                    },
+                    "data" : {
+                      "type" : "array",
+                      "description" : "",
+                      "items" : {
+                        "type" : "object",
+                        "properties" : {
+                          "key" : {
+                            "type" : "object",
+                            "properties" : { }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tasks/{taskId}" : {
+      "get" : {
+        "summary" : "获取任务详情",
+        "description" : "获取任务详情",
+        "parameters" : [ {
+          "name" : "taskId",
+          "in" : "path",
+          "description" : "",
+          "required" : true,
+          "schema" : {
+            "type" : "integer"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties" : {
+                    "success" : {
+                      "type" : "boolean",
+                      "description" : ""
+                    },
+                    "message" : {
+                      "type" : "string",
+                      "description" : ""
+                    },
+                    "code" : {
+                      "type" : "integer",
+                      "description" : ""
+                    },
+                    "data" : {
+                      "type" : "object",
+                      "properties" : {
+                        "id" : {
+                          "type" : "integer",
+                          "description" : "",
+                          "format" : "int64"
+                        },
+                        "name" : {
+                          "type" : "string",
+                          "description" : ""
+                        },
+                        "type" : {
+                          "type" : "integer",
+                          "description" : ""
+                        },
+                        "subjectId" : {
+                          "type" : "integer",
+                          "description" : "",
+                          "format" : "int64"
+                        },
+                        "deadline" : {
+                          "type" : "string",
+                          "description" : ""
+                        },
+                        "reminder" : {
+                          "type" : "string",
+                          "description" : ""
+                        },
+                        "filePath" : {
+                          "type" : "string",
+                          "description" : ""
+                        },
+                        "answerPath" : {
+                          "type" : "string",
+                          "description" : ""
+                        },
+                        "aiAutoGrade" : {
+                          "type" : "boolean",
+                          "description" : ""
+                        },
+                        "teacherReview" : {
+                          "type" : "boolean",
+                          "description" : ""
+                        },
+                        "publishGradeImmediately" : {
+                          "type" : "boolean",
+                          "description" : ""
+                        },
+                        "priority" : {
+                          "type" : "integer",
+                          "description" : ""
+                        },
+                        "taskNotification" : {
+                          "type" : "boolean",
+                          "description" : ""
+                        },
+                        "deadlineNotification" : {
+                          "type" : "boolean",
+                          "description" : ""
+                        },
+                        "gradeNotification" : {
+                          "type" : "boolean",
+                          "description" : ""
+                        },
+                        "status" : {
+                          "type" : "integer",
+                          "description" : ""
+                        },
+                        "creatorId" : {
+                          "type" : "integer",
+                          "description" : "",
+                          "format" : "int64"
+                        },
+                        "mongoContentId" : {
+                          "type" : "string",
+                          "description" : ""
+                        },
+                        "createTime" : {
+                          "type" : "string",
+                          "description" : ""
+                        },
+                        "updateTime" : {
+                          "type" : "string",
+                          "description" : ""
+                        }
+                      },
+                      "description" : ""
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "com.LYX.zhiping.entity.Task" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "description" : "",
+            "format" : "int64"
+          },
+          "name" : {
+            "type" : "string",
+            "description" : ""
+          },
+          "type" : {
+            "type" : "integer",
+            "description" : ""
+          },
+          "subjectId" : {
+            "type" : "integer",
+            "description" : "",
+            "format" : "int64"
+          },
+          "deadline" : {
+            "type" : "string",
+            "description" : ""
+          },
+          "reminder" : {
+            "type" : "string",
+            "description" : ""
+          },
+          "filePath" : {
+            "type" : "string",
+            "description" : ""
+          },
+          "answerPath" : {
+            "type" : "string",
+            "description" : ""
+          },
+          "aiAutoGrade" : {
+            "type" : "boolean",
+            "description" : ""
+          },
+          "teacherReview" : {
+            "type" : "boolean",
+            "description" : ""
+          },
+          "publishGradeImmediately" : {
+            "type" : "boolean",
+            "description" : ""
+          },
+          "priority" : {
+            "type" : "integer",
+            "description" : ""
+          },
+          "taskNotification" : {
+            "type" : "boolean",
+            "description" : ""
+          },
+          "deadlineNotification" : {
+            "type" : "boolean",
+            "description" : ""
+          },
+          "gradeNotification" : {
+            "type" : "boolean",
+            "description" : ""
+          },
+          "status" : {
+            "type" : "integer",
+            "description" : ""
+          },
+          "creatorId" : {
+            "type" : "integer",
+            "description" : "",
+            "format" : "int64"
+          },
+          "mongoContentId" : {
+            "type" : "string",
+            "description" : ""
+          },
+          "createTime" : {
+            "type" : "string",
+            "description" : ""
+          },
+          "updateTime" : {
+            "type" : "string",
+            "description" : ""
+          }
+        },
+        "description" : ""
+      },
+      "com.LYX.zhiping.entity.User" : {
+        "type" : "object",
+        "properties" : {
+          "userId" : {
+            "type" : "integer",
+            "description" : "",
+            "format" : "int64"
+          },
+          "username" : {
+            "type" : "string",
+            "description" : ""
+          },
+          "password" : {
+            "type" : "string",
+            "description" : ""
+          },
+          "phone" : {
+            "type" : "string",
+            "description" : ""
+          },
+          "name" : {
+            "type" : "string",
+            "description" : ""
+          },
+          "role" : {
+            "type" : "string",
+            "description" : "{STUDENT=STUDENT, TEACHER=TEACHER}",
+            "enum" : [ "STUDENT", "TEACHER" ]
+          },
+          "school" : {
+            "type" : "string",
+            "description" : ""
+          },
+          "studentID" : {
+            "type" : "string",
+            "description" : ""
+          },
+          "createdAt" : {
+            "type" : "string",
+            "description" : ""
+          }
+        },
+        "description" : ""
+      }
+    }
+  }
+}

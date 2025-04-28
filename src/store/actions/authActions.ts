@@ -1,26 +1,18 @@
 import {Dispatch} from 'redux';
 import {AuthActionTypes, AuthAction, User} from '../types/auth';
 import axios from 'axios';
-import {Platform} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Toast from 'react-native-toast-message'; // 导入Toast组件
+import {getAuthApiUrl, API_PATHS} from '../../config/apiConfig';
 
 // 注册数据类型, 继承自User类型
 interface registerData extends User {
   smsCode: string;
 }
 
-// API 基础URL - 根据平台选择不同的地址
-// 注意：在Android模拟器中，10.0.2.2 指向主机的localhost
-// 如果使用真机，需要使用电脑在局域网中的实际IP地址
-const API_URL =
-  Platform.OS === 'android'
-    ? 'http://10.0.2.2:8080/api/auth' // Android 模拟器
-    : 'http://localhost:8080/api/auth'; // iOS或Web环境
-
 // 创建axios实例，便于统一配置
 const api = axios.create({
-  baseURL: API_URL,
+  baseURL: getAuthApiUrl(''),
   timeout: 5000, // 增加超时时间
   headers: {
     'Content-Type': 'application/json',
@@ -84,7 +76,7 @@ api.interceptors.response.use(
             type: 'info',
             text1: '登录已过期',
             text2: '请重新登录',
-            position: 'bottom',
+            position: 'top',
             visibilityTime: 3000,
           });
         }
@@ -327,7 +319,7 @@ export const login = (username: string, password: string) => {
         type: 'success',
         text1: '登录成功',
         text2: `欢迎回来，${user?.name || user?.username || '用户'}！`, // 优先使用name字段
-        position: 'bottom',
+        position: 'top',
         visibilityTime: 2000,
       });
 
@@ -347,7 +339,7 @@ export const login = (username: string, password: string) => {
         type: 'error',
         text1: '登录失败',
         text2: errorMessage,
-        position: 'bottom',
+        position: 'top',
         visibilityTime: 3000,
       });
 
@@ -392,7 +384,7 @@ export const loginWithSms = (phone: string, smsCode: string) => {
         type: 'success',
         text1: '登录成功',
         text2: `欢迎回来，${user?.name || user?.username || '用户'}！`, // 优先使用name字段
-        position: 'bottom',
+        position: 'top',
         visibilityTime: 2000,
       });
 
@@ -409,9 +401,9 @@ export const loginWithSms = (phone: string, smsCode: string) => {
       // 显示错误提示
       Toast.show({
         type: 'error',
-        text1: '登录失败',
+        text1: '',
         text2: errorMessage,
-        position: 'bottom',
+        position: 'top',
         visibilityTime: 3000,
       });
 
@@ -433,10 +425,15 @@ export const sendSmsCode = (phone: string, type: string) => {
       const response = await api.post(
         '/send-verification-code?phone=' + phone + '&type=' + type,
       );
-      console.log('登录响应:', response.data);
+
+      console.log(
+        '发送验证码响应:',
+        response.data.code,
+        response.data.code !== 1000,
+      );
 
       // 修正：正确解析嵌套的响应数据结构
-      if (!response.data || !response.data.data) {
+      if (!response.data || response.data.code !== 1000) {
         console.error('响应数据结构不符合预期:', response.data);
         throw response;
       }
@@ -444,10 +441,10 @@ export const sendSmsCode = (phone: string, type: string) => {
       // 显示成功提示
       Toast.show({
         type: 'success',
-        text1: '验证码已发送',
-        text2: '请查看短信并输入验证码',
-        position: 'bottom',
-        visibilityTime: 2000,
+        text1: '验证码已发送，请查看短信并输入验证码',
+        text2: response.data.data.code,
+        position: 'top',
+        visibilityTime: 5000,
       });
 
       dispatch({type: AuthActionTypes.SMS_CODE_SUCCESS});
@@ -462,7 +459,7 @@ export const sendSmsCode = (phone: string, type: string) => {
         type: 'error',
         text1: '发送验证码失败',
         text2: errorMessage,
-        position: 'bottom',
+        position: 'top',
         visibilityTime: 3000,
       });
 
@@ -500,7 +497,7 @@ export const register = (userData: registerData) => {
       // 修正：正确解析嵌套的响应数据结构
       if (!response.data || !response.data.data || !response.data.data.token) {
         console.error('响应数据结构不符合预期:', response.data);
-        throw new Error('服务器响应缺少token信息');
+        throw new Error(response.data.message || '注册失败');
       }
 
       // 注册成功，自动登录
@@ -514,7 +511,7 @@ export const register = (userData: registerData) => {
         type: 'success',
         text1: '注册成功',
         text2: `欢迎加入智评，${name || username}！`, // 优先使用name字段
-        position: 'bottom',
+        position: 'top',
         visibilityTime: 2000,
       });
 
@@ -522,6 +519,9 @@ export const register = (userData: registerData) => {
         type: AuthActionTypes.REGISTER_SUCCESS,
         payload: {user},
       });
+
+      // 自动登录
+      dispatch(login(username, password));
     } catch (error) {
       console.error('注册错误:', error);
 
@@ -533,7 +533,7 @@ export const register = (userData: registerData) => {
         type: 'error',
         text1: '注册失败',
         text2: errorMessage,
-        position: 'bottom',
+        position: 'top',
         visibilityTime: 3000,
       });
 
@@ -624,7 +624,7 @@ export const validateToken = () => {
           type: 'error',
           text1: '会话验证失败',
           text2: errorMessage,
-          position: 'bottom',
+          position: 'top',
           visibilityTime: 3000,
         });
 
@@ -661,7 +661,7 @@ export const clearErrors = (): AuthAction => ({
 export const testApiConnection = () => {
   return async () => {
     try {
-      console.log('测试API连接...', API_URL);
+      console.log('测试API连接...', getAuthApiUrl(''));
       // 使用简单的ping
       const response = await api.get('/ping', {
         timeout: 5000, // 5秒超时
@@ -673,7 +673,7 @@ export const testApiConnection = () => {
         type: 'success',
         text1: 'API连接成功',
         text2: '服务器连接正常',
-        position: 'bottom',
+        position: 'top',
         visibilityTime: 2000,
       });
 
@@ -705,7 +705,7 @@ export const testApiConnection = () => {
         type: 'error',
         text1: 'API连接失败',
         text2: errorMessage,
-        position: 'bottom',
+        position: 'top',
         visibilityTime: 3000,
       });
 
@@ -728,7 +728,7 @@ export const requestPasswordReset = (email: string) => {
         type: 'success',
         text1: '重置密码邮件已发送',
         text2: '请查看您的邮箱并按照指引重置密码',
-        position: 'bottom',
+        position: 'top',
         visibilityTime: 3000,
       });
 
@@ -745,7 +745,7 @@ export const requestPasswordReset = (email: string) => {
         type: 'error',
         text1: '重置密码请求失败',
         text2: errorMessage,
-        position: 'bottom',
+        position: 'top',
         visibilityTime: 3000,
       });
 
@@ -772,7 +772,7 @@ export const resetPassword = (token: string, newPassword: string) => {
         type: 'success',
         text1: '密码重置成功',
         text2: '请使用新密码登录',
-        position: 'bottom',
+        position: 'top',
         visibilityTime: 2000,
       });
 
@@ -789,7 +789,7 @@ export const resetPassword = (token: string, newPassword: string) => {
         type: 'error',
         text1: '密码重置失败',
         text2: errorMessage,
-        position: 'bottom',
+        position: 'top',
         visibilityTime: 3000,
       });
 
@@ -838,7 +838,7 @@ export const updateUserProfile = (userId: string, profileData: any) => {
         type: 'success',
         text1: '个人信息更新成功',
         text2: profileData.name ? `已更新为 ${profileData.name}` : '', // 如果更新了name，显示新的name
-        position: 'bottom',
+        position: 'top',
         visibilityTime: 2000,
       });
 
@@ -858,7 +858,7 @@ export const updateUserProfile = (userId: string, profileData: any) => {
         type: 'error',
         text1: '更新个人信息失败',
         text2: errorMessage,
-        position: 'bottom',
+        position: 'top',
         visibilityTime: 3000,
       });
 
@@ -912,7 +912,7 @@ export const getUserProfile = () => {
         type: 'error',
         text1: '获取个人信息失败',
         text2: errorMessage,
-        position: 'bottom',
+        position: 'top',
         visibilityTime: 3000,
       });
 

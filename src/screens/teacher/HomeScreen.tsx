@@ -12,71 +12,17 @@ import {
   ScrollView,
   TouchableOpacity,
   TextInput,
-  Image,
 } from 'react-native';
 
 import LinearGradient from 'react-native-linear-gradient';
 
-// 导入图标资源
-import {
-  homeIcon,
-  messageCircleIcon,
-  searchIcon,
-  scanIcon,
-  checkCircleIcon,
-  chartIcon,
-  bookIcon,
-  fileIcon,
-  fileCheckIcon,
-  trendingUpIcon,
-  zapIcon,
-  bellIcon,
-  clipboardCheckIcon,
-} from '../../assets/icons';
+import Icon from '../../components/common/Icon';
 import {STATUS_BAR_HEIGHT} from '../../utils/devicesUtils';
 import {useNavigation} from '@react-navigation/native';
 import {AnalysisCard} from '../../components/specific/AnalysisCard';
 import {useSelector} from 'react-redux';
 import {RootState} from '../../store';
 import {TaskCard} from '../../components/specific/TaskCard';
-
-// 临时使用的图标组件，后续可替换为实际图标
-const Icon = ({name, size = 24, color = '#000'}) => {
-  // 根据图标名称返回对应的图标组件
-  const getIconSource = iconName => {
-    switch (iconName) {
-      case 'zap':
-        return zapIcon; // 临时替代
-      case 'bell':
-        return bellIcon; // 临时替代
-      case 'search':
-        return searchIcon;
-      case 'scan-line':
-        return scanIcon;
-      case 'clipboard-check':
-        return clipboardCheckIcon; // 临时替代
-      case 'bar-chart-2':
-        return chartIcon;
-      case 'book-open':
-        return bookIcon;
-      case 'file-text':
-        return fileIcon;
-      case 'file-check':
-        return fileCheckIcon;
-      case 'trending-up':
-        return trendingUpIcon;
-      default:
-        return homeIcon;
-    }
-  };
-
-  return (
-    <Image
-      source={getIconSource(name)}
-      style={{width: size, height: size, tintColor: color}}
-    />
-  );
-};
 
 // 快捷功能项组件
 const QuickActionItem = ({icon, color, bgColor, label, onPress}) => (

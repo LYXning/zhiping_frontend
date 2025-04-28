@@ -8,14 +8,18 @@ export const subjectsArray = [
   '历史',
   '地理',
   '政治',
-  '体育',
-  '音乐',
-  '美术',
-  '信息技术',
-  '语言',
-  '社会',
-  '教育',
-  '法律',
+];
+
+export const subjectsArrayEnglish = [
+  'Chinese',
+  'Math',
+  'English',
+  'Physics',
+  'Chemistry',
+  'Biology',
+  'History',
+  'Geography',
+  'Politics',
 ];
 
 export const getSubjectIdByName = (subjectName: string) => {
@@ -24,4 +28,12 @@ export const getSubjectIdByName = (subjectName: string) => {
 
 export const getSubjectNameById = (subjectId: number) => {
   return subjectsArray[subjectId - 1];
+};
+
+export const getSubjectEnglishNameById = (subjectId: number) => {
+  return subjectsArrayEnglish[subjectId - 1];
+};
+
+export const getChinsesNameByEnglishName = (subjectName: string) => {
+  return subjectsArray[subjectsArrayEnglish.indexOf(subjectName)];
 };

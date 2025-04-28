@@ -97,8 +97,9 @@ const RegisterScreen = () => {
     dispatch(sendSmsCode(phone, 'register'));
 
     // 开始倒计时
-    if (smsCodeSent)
-      {setCountdown(60);}
+    if (smsCodeSent) {
+      setCountdown(60);
+    }
   };
 
   /**
@@ -254,7 +255,10 @@ const RegisterScreen = () => {
    * 处理返回登录界面
    */
   const handleBackToLogin = (): void => {
-    navigation.navigate('Login');
+    navigation.reset({
+      index: 0,
+      routes: [{name: 'Login'}],
+    });
   };
 
   // 验证码倒计时效果
@@ -352,6 +356,7 @@ const RegisterScreen = () => {
                 <TextInput
                   style={styles.input}
                   placeholder="用户名"
+                  placeholderTextColor="#999"
                   value={username}
                   onChangeText={setUsername}
                 />
@@ -366,6 +371,7 @@ const RegisterScreen = () => {
                 <TextInput
                   style={styles.input}
                   placeholder="手机号"
+                  placeholderTextColor="#999"
                   value={phone}
                   onChangeText={setPhone}
                   keyboardType="phone-pad"
@@ -383,6 +389,7 @@ const RegisterScreen = () => {
                   <TextInput
                     style={styles.input}
                     placeholder="验证码"
+                    placeholderTextColor="#999"
                     value={smsCode}
                     onChangeText={setSmsCode}
                     keyboardType="number-pad"
@@ -419,6 +426,7 @@ const RegisterScreen = () => {
                 <TextInput
                   style={styles.input}
                   placeholder="设置密码"
+                  placeholderTextColor="#999"
                   value={password}
                   onChangeText={setPassword}
                   secureTextEntry
@@ -434,6 +442,7 @@ const RegisterScreen = () => {
                 <TextInput
                   style={styles.input}
                   placeholder="确认密码"
+                  placeholderTextColor="#999"
                   value={confirmPassword}
                   onChangeText={setConfirmPassword}
                   secureTextEntry
@@ -449,6 +458,7 @@ const RegisterScreen = () => {
                 <TextInput
                   style={styles.input}
                   placeholder="姓名"
+                  placeholderTextColor="#999"
                   value={name}
                   onChangeText={setName}
                 />
@@ -463,6 +473,7 @@ const RegisterScreen = () => {
                 <TextInput
                   style={styles.input}
                   placeholder="学校"
+                  placeholderTextColor="#999"
                   value={school}
                   onChangeText={setSchool}
                 />
@@ -477,13 +488,14 @@ const RegisterScreen = () => {
                 <TextInput
                   style={styles.input}
                   placeholder="学号"
+                  placeholderTextColor="#999"
                   value={studentID}
                   onChangeText={setStudentID}
                 />
               </View>
 
               {/* 用户身份：role = STUDENT or TEACHER */}
-              <View style={styles.inputWrapper}>
+              {/* <View style={styles.inputWrapper}>
                 <Image
                   source={require('../../assets/icons/user.png')}
                   style={styles.inputIcon}
@@ -522,7 +534,7 @@ const RegisterScreen = () => {
                     </TouchableOpacity>
                   </View>
                 </View>
-              </View>
+              </View> */}
 
               {/* 用户协议 */}
               <TouchableOpacity
@@ -600,11 +612,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 4},
-    shadowOpacity: 0.2,
-    shadowRadius: 5,
-    elevation: 5,
+    // elevation: 5,
     marginBottom: 16,
   },
   logoText: {
@@ -626,11 +634,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderRadius: 20,
     padding: 20,
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 4},
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    elevation: 5,
+    // elevation: 5,
     marginBottom: 20,
   },
   formTitleContainer: {

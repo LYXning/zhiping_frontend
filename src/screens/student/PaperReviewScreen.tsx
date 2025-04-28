@@ -3,6 +3,7 @@
  * 用于学生查看试卷题目和答案识别结果，并可以修改错误识别
  */
 
+// 修改 PaperReviewScreen.tsx 中的导入部分
 import React, {useState, useEffect, useCallback} from 'react';
 import {
   View,
@@ -11,56 +12,43 @@ import {
   SafeAreaView,
   ScrollView,
   TouchableOpacity,
-  TextInput,
-  Image,
   Alert,
   ActivityIndicator,
-  Platform,
 } from 'react-native';
+import {showSuccess, showError} from '../../utils/toastUtils';
 import {useDispatch, useSelector} from 'react-redux';
 import {RootState} from '../../store';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import LinearGradient from 'react-native-linear-gradient';
-import {STATUS_BAR_HEIGHT} from '../../utils/devicesUtils';
 import {
-  checkCircleIcon,
-  editIcon,
-  leftIcon,
-  saveIcon,
-} from '../../assets/icons';
-import {getPaperInfo} from '../../store/actions/paperActions';
+  BOTTOM_SAFE_AREA_HEIGHT,
+  STATUS_BAR_HEIGHT,
+} from '../../utils/devicesUtils';
+import Icon from '../../components/common/Icon';
+import {
+  getPaperInfo,
+  updateUserAnswers,
+  gradePaper,
+} from '../../store/actions/paperActions';
 import {getSubjectNameById} from '../../utils/subjectUtils';
+import QuestionRenderer from '../../components/questions/QuestionRenderer';
+import {StackNavigationProp} from '@react-navigation/stack';
+import {RootStackParamList} from '../../navigation';
 
-// 图标组件
-const Icon = ({name, size = 24, color = '#000'}) => {
-  // 根据图标名称返回对应的图标组件
-  const getIconSource = iconName => {
-    switch (iconName) {
-      case 'arrow-left':
-        return leftIcon;
-      case 'check-circle':
-        return checkCircleIcon;
-      case 'edit':
-        return editIcon;
-      case 'save':
-        return saveIcon;
-      default:
-        return leftIcon;
-    }
-  };
-  return (
-    <Image
-      source={getIconSource(name)}
-      style={{width: size, height: size, tintColor: color}}
-    />
-  );
-};
+type PaperReviewScreenNavigationProp = StackNavigationProp<
+  RootStackParamList,
+  'Login'
+>;
 
 const PaperReviewScreen = () => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<PaperReviewScreenNavigationProp>();
   const route = useRoute();
   const {paperId, paperName} = route.params || {};
+  console.log('route.params', paperId, paperName);
   const dispatch = useDispatch();
+
+  // 添加ScrollView引用
+  const scrollViewRef = React.useRef<ScrollView>(null);
 
   const isProcessing = useSelector(
     (state: RootState) => state.paper.loading && !state.paper.success,
@@ -99,17 +87,23 @@ const PaperReviewScreen = () => {
         .then(result => {
           if (result.data) {
             console.log('API返回的数据:', result.data);
+
+            // 创建深拷贝的问题数组，避免直接修改Redux状态
+            const questionsCopy = result.data.questionDetails
+              ? JSON.parse(JSON.stringify(result.data.questionDetails))
+              : [];
+
             // 将API返回的数据转换为组件需要的格式
             const paperData = {
               id: result.data.id || paperId,
               name: result.data.name || paperName,
               subject: getSubjectNameById(result.data.subject) || '未知科目',
               grade: result.data.gradeName || '未知年级',
-              questions: result.data.questionDetails || [],
+              questions: questionsCopy,
               userAnswers: result.data.userAnswers || [],
             };
 
-            // 将用户答案合并到题目中，如果userAnswers的sequence与题目sequence一致，则合并
+            // 将用户答案合并到题目中，使用深拷贝后的数据
             paperData.questions.forEach(question => {
               const userAnswer = paperData.userAnswers.find(
                 ans => ans.sequence === question.sequence,
@@ -130,7 +124,7 @@ const PaperReviewScreen = () => {
         .catch(err => {
           console.error('加载试卷数据失败:', err);
           setLoading(false);
-          Alert.alert('错误', '加载试卷数据失败，请重试');
+          showError('错误', '加载试卷数据失败，请重试');
 
           // 加载失败时使用模拟数据
           // ... existing mock data code remains the same
@@ -138,7 +132,7 @@ const PaperReviewScreen = () => {
     } catch (err) {
       console.error('加载试卷数据失败:', err);
       setLoading(false);
-      Alert.alert('错误', '加载试卷数据失败，请重试');
+      showError('错误', '加载试卷数据失败，请重试');
     }
   }, [dispatch, paperId, paperName]); // 依赖项包括dispatch, paperId和paperName
 
@@ -183,12 +177,19 @@ const PaperReviewScreen = () => {
           },
           {
             text: '确定离开',
-            onPress: () => navigation.goBack(),
+            onPress: () =>
+              navigation.reset({
+                index: 0,
+                routes: [{name: 'Main'}],
+              }),
           },
         ],
       );
     } else {
-      navigation.goBack();
+      navigation.reset({
+        index: 0,
+        routes: [{name: 'Main'}],
+      });
     }
   };
 
@@ -205,6 +206,19 @@ const PaperReviewScreen = () => {
         ...editedAnswers,
         [questionId]: editedAnswers[questionId] || question.userAnswers,
       });
+
+      // 找到当前题目在列表中的索引
+      const questionIndex = paperData.questions.findIndex(
+        q => q.id === questionId,
+      );
+
+      // 使用setTimeout确保在状态更新后滚动
+      setTimeout(() => {
+        // 计算需要滚动的位置（每个题目卡片高度约为问题的复杂度而定，这里假设平均300）
+        // 可以根据实际情况调整这个值
+        const scrollPosition = questionIndex * 300;
+        scrollViewRef.current?.scrollTo({y: scrollPosition, animated: true});
+      }, 100);
     }
   };
 
@@ -235,7 +249,15 @@ const PaperReviewScreen = () => {
     setEditingQuestionId(null);
 
     // 这里应该有API调用来保存修改后的答案
-    Alert.alert('成功', '答案已更新');
+    showSuccess('成功', '答案已更新');
+  };
+
+  // 处理答案变更
+  const handleAnswerChange = (questionId, answer) => {
+    setEditedAnswers({
+      ...editedAnswers,
+      [questionId]: answer,
+    });
   };
 
   // 处理提交确认
@@ -272,229 +294,49 @@ const PaperReviewScreen = () => {
   const handleSubmitPaper = () => {
     setIsSaving(true);
 
+    if (!paperData || !paperData.questions) {
+      showError('错误', '试卷数据不完整，请重新加载');
+      setIsSaving(false);
+      return;
+    }
+
     // 准备要提交的答案数据
     const answers = paperData.questions.map(question => ({
       sequence: question.sequence,
-      content: question.userAnswers,
+      content: question.userAnswers || '', // 确保content不为undefined
     }));
 
     // 调用批量修改用户答案的接口
     dispatch(updateUserAnswers(paperData.id, answers))
       .then(result => {
-        setIsSaving(false);
-
-        // 显示成功提示
-        Alert.alert('提交成功', '答案已成功提交', [
-          {
-            text: '查看结果',
-            onPress: () => {
-              // 导航到结果页面
-              navigation.navigate('PaperResult', {
+        // 导航到报告页面
+        navigation.reset({
+          index: 0,
+          routes: [
+            {
+              name: 'PaperReport',
+              params: {
                 paperId: paperData.id,
                 paperName: paperData.name,
-              });
+                isGrading: false, // 批改已完成
+              },
             },
-          },
-        ]);
+          ],
+        });
+        // 答案提交成功后，调用批改试卷接口
+        dispatch(gradePaper(paperData.id))
+          .then(gradeResult => {
+            setIsSaving(false);
+          })
+          .catch(error => {
+            // 即使批改接口调用失败，也导航到报告页面
+            setIsSaving(false);
+          });
       })
       .catch(error => {
         setIsSaving(false);
-        Alert.alert('提交失败', error.message || '提交答案时发生错误，请重试');
+        showError('提交失败', error.message || '提交答案时发生错误，请重试');
       });
-  };
-
-  // 渲染选择题
-  const renderChoiceQuestion = (question, index) => {
-    const isEditing = editingQuestionId === question.id;
-    const currentAnswer = isEditing
-      ? editedAnswers[question.id]
-      : question.userAnswers;
-
-    return (
-      <View style={styles.questionCard} key={question.id}>
-        <View style={styles.questionHeader}>
-          <Text style={styles.questionNumber}>{index + 1}</Text>
-          <Text style={styles.questionType}>选择题</Text>
-          <View style={styles.questionActions}>
-            {isEditing ? (
-              <TouchableOpacity
-                style={styles.actionButton}
-                onPress={() => handleSaveAnswer(question.id)}>
-                <Icon name="save" size={20} color="#0284c7" />
-              </TouchableOpacity>
-            ) : (
-              <TouchableOpacity
-                style={styles.actionButton}
-                onPress={() => handleEditAnswer(question.id)}>
-                <Icon name="edit" size={20} color="#0284c7" />
-              </TouchableOpacity>
-            )}
-          </View>
-        </View>
-
-        <Text style={styles.questionContent}>{question.content}</Text>
-
-        <View style={styles.optionsContainer}>
-          {Object.entries(question.options).map(([key, value], optIndex) => (
-            <TouchableOpacity
-              key={key}
-              style={[
-                styles.optionItem,
-                currentAnswer === optIndex && styles.selectedOption,
-              ]}
-              onPress={() => {
-                if (isEditing) {
-                  setEditedAnswers({
-                    ...editedAnswers,
-                    [question.id]: optIndex,
-                  });
-                }
-              }}
-              disabled={!isEditing}>
-              <Text style={styles.optionLabel}>
-                {String.fromCharCode(65 + optIndex)}
-              </Text>
-              <Text style={styles.optionText}>{value}</Text>
-              {currentAnswer === optIndex && (
-                <View style={styles.checkIconContainer}>
-                  <Icon name="check-circle" size={16} color="#0284c7" />
-                </View>
-              )}
-            </TouchableOpacity>
-          ))}
-        </View>
-
-        {isEditing && (
-          <Text style={styles.editingHint}>
-            点击选项可修改答案，完成后点击保存按钮
-          </Text>
-        )}
-      </View>
-    );
-  };
-
-  // 渲染填空题
-  const renderFillQuestion = (question, index) => {
-    const isEditing = editingQuestionId === question.id;
-    const currentAnswer = isEditing
-      ? editedAnswers[question.id]
-      : question.userAnswers;
-
-    return (
-      <View style={styles.questionCard} key={question.id}>
-        <View style={styles.questionHeader}>
-          <Text style={styles.questionNumber}>{index + 1}</Text>
-          <Text style={styles.questionType}>填空题</Text>
-          <View style={styles.questionActions}>
-            {isEditing ? (
-              <TouchableOpacity
-                style={styles.actionButton}
-                onPress={() => handleSaveAnswer(question.id)}>
-                <Icon name="save" size={20} color="#0284c7" />
-              </TouchableOpacity>
-            ) : (
-              <TouchableOpacity
-                style={styles.actionButton}
-                onPress={() => handleEditAnswer(question.id)}>
-                <Icon name="edit" size={20} color="#0284c7" />
-              </TouchableOpacity>
-            )}
-          </View>
-        </View>
-
-        <Text style={styles.questionContent}>{question.content}</Text>
-
-        <View style={styles.answerContainer}>
-          <Text style={styles.answerLabel}>识别结果：</Text>
-          {isEditing ? (
-            <TextInput
-              style={styles.answerInput}
-              value={String(currentAnswer)}
-              onChangeText={text =>
-                setEditedAnswers({...editedAnswers, [question.id]: text})
-              }
-              autoFocus
-            />
-          ) : (
-            <Text style={styles.answerText}>{currentAnswer}</Text>
-          )}
-        </View>
-
-        {isEditing && (
-          <Text style={styles.editingHint}>输入正确答案后点击保存按钮</Text>
-        )}
-      </View>
-    );
-  };
-
-  // 渲染简答题
-  const renderEssayQuestion = (question, index) => {
-    const isEditing = editingQuestionId === question.id;
-    const currentAnswer = isEditing
-      ? editedAnswers[question.id]
-      : question.userAnswers;
-
-    return (
-      <View style={styles.questionCard} key={question.id}>
-        <View style={styles.questionHeader}>
-          <Text style={styles.questionNumber}>{index + 1}</Text>
-          <Text style={styles.questionType}>简答题</Text>
-          <View style={styles.questionActions}>
-            {isEditing ? (
-              <TouchableOpacity
-                style={styles.actionButton}
-                onPress={() => handleSaveAnswer(question.id)}>
-                <Icon name="save" size={20} color="#0284c7" />
-              </TouchableOpacity>
-            ) : (
-              <TouchableOpacity
-                style={styles.actionButton}
-                onPress={() => handleEditAnswer(question.id)}>
-                <Icon name="edit" size={20} color="#0284c7" />
-              </TouchableOpacity>
-            )}
-          </View>
-        </View>
-
-        <Text style={styles.questionContent}>{question.content}</Text>
-
-        <View style={styles.essayAnswerContainer}>
-          <Text style={styles.answerLabel}>识别结果：</Text>
-          {isEditing ? (
-            <TextInput
-              style={styles.essayAnswerInput}
-              value={String(currentAnswer)}
-              onChangeText={text =>
-                setEditedAnswers({...editedAnswers, [question.id]: text})
-              }
-              multiline
-              numberOfLines={4}
-              autoFocus
-            />
-          ) : (
-            <Text style={styles.essayAnswerText}>{currentAnswer}</Text>
-          )}
-        </View>
-
-        {isEditing && (
-          <Text style={styles.editingHint}>修改答案内容后点击保存按钮</Text>
-        )}
-      </View>
-    );
-  };
-
-  // 根据题目类型渲染不同的题目组件
-  const renderQuestion = (question, index) => {
-    switch (question.question_type) {
-      case '选择题':
-        return renderChoiceQuestion(question, index);
-      case '填空题':
-        return renderFillQuestion(question, index);
-      case '简答题':
-        return renderEssayQuestion(question, index);
-      default:
-        return null;
-    }
   };
 
   if (loading) {
@@ -552,13 +394,23 @@ const PaperReviewScreen = () => {
           </Text>
         </View>
 
-        {/* 题目列表 */}
+        {/* 题目列表 - 使用 QuestionRenderer 组件 */}
         <ScrollView
+          ref={scrollViewRef}
           style={styles.scrollView}
           contentContainerStyle={styles.contentContainer}>
-          {paperData?.questions.map((question, index) =>
-            renderQuestion(question, index),
-          )}
+          {paperData?.questions.map((question, index) => (
+            <QuestionRenderer
+              key={question.id}
+              question={question}
+              index={index}
+              editingQuestionId={editingQuestionId}
+              editedAnswers={editedAnswers}
+              onEditAnswer={handleEditAnswer}
+              onSaveAnswer={handleSaveAnswer}
+              onAnswerChange={handleAnswerChange}
+            />
+          ))}
 
           {/* 底部间距 */}
           <View style={styles.bottomSpacer} />
@@ -595,7 +447,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 16,
-    paddingTop: STATUS_BAR_HEIGHT + 10,
+    paddingTop: STATUS_BAR_HEIGHT + 24,
     paddingBottom: 16,
   },
   backButton: {
@@ -763,7 +615,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   loadingContainer: {
-    flex: 1,
+    marginTop: 118,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -785,12 +637,13 @@ const styles = StyleSheet.create({
     borderTopColor: '#e5e7eb',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    paddingBottom: Platform.OS === 'ios' ? 24 : 12,
+    paddingBottom: BOTTOM_SAFE_AREA_HEIGHT,
   },
   submitButton: {
     backgroundColor: '#0284c7',
     borderRadius: 8,
     paddingVertical: 12,
+    marginHorizontal: 12,
     alignItems: 'center',
   },
   disabledButton: {

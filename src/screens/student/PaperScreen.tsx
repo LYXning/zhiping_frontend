@@ -1,3 +1,8 @@
+/**
+ * 试卷列表页面
+ * 用于展示用户的试卷列表。
+ */
+
 import React, {useEffect, useState} from 'react';
 import {
   View,
@@ -8,7 +13,6 @@ import {
   ActivityIndicator,
   RefreshControl,
   SafeAreaView,
-  StatusBar,
   Image,
 } from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
@@ -19,6 +23,8 @@ import {STATUS_BAR_HEIGHT} from '../../utils/devicesUtils';
 import LinearGradient from 'react-native-linear-gradient';
 import {emptyBoxIcon} from '../../assets/icons';
 import {TaskCard} from '../../components/specific/TaskCard';
+import {getSubjectEnglishNameById} from '../../utils/subjectUtils';
+import {dateUtils} from '../../utils/dateUtils';
 
 const PaperScreen = () => {
   const dispatch = useDispatch();
@@ -60,13 +66,13 @@ const PaperScreen = () => {
       // 修改为通过相对导航访问PaperReview
       navigation.navigate('PaperReview', {
         paperId: paper.id,
-        paperName: paper.name,
+        paperName: paper.title,
       });
     } else {
       // 修改为通过相对导航访问PaperResult
       navigation.navigate('PaperResult', {
         paperId: paper.id,
-        paperName: paper.name,
+        paperName: paper.title,
       });
     }
   };
@@ -111,8 +117,8 @@ const PaperScreen = () => {
         {/* 任务分类标签 */}
         <View style={styles.tabContainer}>
           {renderTabButton('all', '全部', activeTab === 'all')}
-          {renderTabButton('pending', '待完成', activeTab === 'pending')}
-          {renderTabButton('inProgress', '进行中', activeTab === 'inProgress')}
+          {renderTabButton('pending', '待批改', activeTab === 'pending')}
+          {renderTabButton('inProgress', '批改中', activeTab === 'inProgress')}
           {renderTabButton('completed', '已完成', activeTab === 'completed')}
         </View>
 
@@ -131,9 +137,12 @@ const PaperScreen = () => {
             data={filteredPapers}
             renderItem={({item}) => (
               <View>
-                <Text>{JSON.stringify(item)}</Text>
                 <TaskCard
                   {...item}
+                  icon={getSubjectEnglishNameById(item.subjectId).toLowerCase()}
+                  deadline={
+                    '创建时间：' + dateUtils.defaultFormat(item.createdAt)
+                  }
                   showActionButton={true}
                   // onPress={handlePaperPress}
                 />
